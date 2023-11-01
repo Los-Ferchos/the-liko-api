@@ -1,0 +1,23 @@
+{
+  "name": "the-liko-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Los-Ferchos/the-liko-api.git"
+  },
+  "keywords": [],
+  "author": "Los Ferchos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Los-Ferchos/the-liko-api/issues"
+  },
+  "homepage": "https://github.com/Los-Ferchos/the-liko-api#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
