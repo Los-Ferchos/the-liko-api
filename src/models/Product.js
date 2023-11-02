@@ -38,7 +38,7 @@ const productSchema = new Schema({
     },
     subcategory: {
       type: Schema.Types.ObjectId,
-      ref: 'Subcategory'
+      ref: 'Subcategory',
     },
     price: {
       value: {
