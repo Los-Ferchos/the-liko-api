@@ -3,50 +3,56 @@ import Product from '../../models/Product.js';
 /**
  * Saves a new Product.
  * 
- * @param {*} request - The request object.
- * @param {*} response - The response object.
+ * @param {*} req - The request object.
+ * @param {*} res - The response object.
  */
-export const saveNewProduct = async (request, response) => {
-	const product = new Product(request.body);
-	try {
-		await product.save();
-		response.sendStatus(200);
-	} catch (error) {
-		response.sendStatus(500);
-	}
-};
+export const saveNewProduct = async (req, res) => {
+    try {
+      const newProduct = new Product(req.body);
+      await newProduct.save();
+      res.status(201).json(newProduct);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 
 /**
  * Edits an Product by its ID.
  * 
- * @param {*} request - The request object.
- * @param {*} response - The response object.
+ * @param {*} req - The request object.
+ * @param {*} res - The response object.
  */
-export const editProductById = async (request, response) => {
-	try {
-		await Product.findByIdAndDelete(request.params.id, request.body, {
-			new: true
-		});
-		response.sendStatus(200);
-	} catch (error) {
-		response.sendStatus(500);
-	}
-};
+export const editProductById = async (req, res) => {
+    const { id } = req.params;
+    try {
+      const updatedProduct = await Product.findByIdAndUpdate(id, req.body, { new: true });
+      if (!updatedProduct) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      res.status(200).json(updatedProduct);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 
 /**
  * Deletes an Product by its ID.
  * 
- * @param {*} request - The request object.
- * @param {*} response - The response object.
+ * @param {*} req- The request object.
+ * @param {*} res - The response object.
  */
-export const deleteProductById = async (request, response) => {
-	try {
-		await Product.findByIdAndDelete(request.params.id);
-		response.sendStatus(200);
-	} catch (error) {
-		response.sendStatus(500);
-	}
-};
+export const deleteProductById = async (req, res) => {
+    const { id } = req.params;
+    try {
+      const deletedProduct = await Product.findByIdAndDelete(id);
+      if (!deletedProduct) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      res.status(200).json({ message: 'Product deleted successfully' });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+}
 
 /**
  * Deletes Products with death dates earlier than the current date.

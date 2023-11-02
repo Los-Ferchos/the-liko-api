@@ -26,10 +26,12 @@ const productSchema = new Schema({
       type: String
     },
     category: {
-      type: String
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category'
     },
     subcategory: {
-      type: String
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subcategory'
     },
     price: {
       value: {

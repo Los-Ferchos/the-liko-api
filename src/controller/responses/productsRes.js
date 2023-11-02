@@ -12,11 +12,8 @@ export const getProductById = async (request, response) => {
 };
 
 /**
- * Gets a list of incidents as a JSON response.
- *
- * If longitude, latitude, and radius are provided in the query parameters,
- * it retrieves nearby incidents; otherwise, it retrieves all incidents.
- *
+ * Gets a list of incidents as a JSON response using pagination by .
+
  * @param {*} request - The request object.
  * @param {*} response - The response object.
  */
