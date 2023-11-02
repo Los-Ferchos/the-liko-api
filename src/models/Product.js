@@ -5,25 +5,32 @@ import { Schema, model } from 'mongoose';
 */
 const productSchema = new Schema({
     name: {
-      type: String
+      type: String,
+      required: true
     },
     description: {
-      type: String
+      type: String,
+      required: true
     },
     rating: {
-      type: Number
+      type: Number,
+      required: true
     },
     totalReviews: {
-      type: Number
+      type: Number,
+      required: true
     },
     sells: {
-      type: Number
+      type: Number,
+      required: true
     },
     quantity: {
-      type: Number
+      type: Number,
+      required: true
     },
     imgUrl: {
-      type: String
+      type: String,
+      required: true
     },
     category: {
       type: Schema.Types.ObjectId,
@@ -35,14 +42,17 @@ const productSchema = new Schema({
     },
     price: {
       value: {
-        type: Number
+        type: Number,
+        required: true
       },
       currency: {
-        type: String
+        type: String,
+        required: true
       }
     },
     details: {
-      type: Object
+      type: Object,
+      required: true
     },
     drinkMixes: [
       {
