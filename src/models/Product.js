@@ -19,18 +19,18 @@ const productSchema = new Schema({
     sells: {
       type: Number
     },
-    quantityRate: {
+    quantity: {
       type: Number
     },
     imgUrl: {
       type: String
     },
     category: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Category'
     },
     subcategory: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'Subcategory'
     },
     price: {
@@ -50,7 +50,7 @@ const productSchema = new Schema({
         ref: 'DrinkMix'
       }
     ],
-    combo: [
+    combos: [
       {
         type: Schema.Types.ObjectId,
         ref: 'Combo'

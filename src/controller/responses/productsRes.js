@@ -1,4 +1,4 @@
-import Product from "../../models/Product";
+import Product from "../../models/Product.js";
 
 /**
  * Gets an product by its ID as a JSON response.
@@ -29,6 +29,7 @@ export const getAllProducts = async (req, res) => {
       const pagination = {
         total: totalProductsCount,
         limit: limit,
+        totalPages: Math.ceil(totalProductsCount / limit),
         page: page
       };
   
@@ -73,6 +74,7 @@ export const getAllProductsByCategory = async (req, res) => {
       const pagination = {
         total: totalProductsCount,
         limit: limit,
+        totalPages: Math.ceil(totalProductsCount / limit),
         page: page
       };
   
@@ -117,6 +119,7 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
       const pagination = {
         total: totalProductsCount,
         limit: limit,
+        totalPages: Math.ceil(totalProductsCount / limit),
         page: page
       };
   

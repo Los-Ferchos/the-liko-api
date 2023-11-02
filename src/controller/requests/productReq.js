@@ -33,7 +33,7 @@ export const editProductById = async (req, res) => {
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
-  }
+}
 
 /**
  * Deletes an Product by its ID.
