@@ -17,7 +17,7 @@ export const saveNewProduct = async (req, res) => {
   }
 
 /**
- * Edits an Product by its ID.
+ * Edits a Product by its ID.
  * 
  * @param {*} req - The request object.
  * @param {*} res - The response object.
@@ -36,7 +36,7 @@ export const editProductById = async (req, res) => {
 }
 
 /**
- * Deletes an Product by its ID.
+ * Deletes a Product by its ID.
  * 
  * @param {*} req- The request object.
  * @param {*} res - The response object.

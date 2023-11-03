@@ -7,10 +7,7 @@ const MONGO_URI = 'mongodb+srv://Backend:0VYyi8776OlO6ps3@clusterdev.v10d7k7.mon
  * Method to connect server to the database.
  */
 export const connectToDatabase = async () => {
-	await connect(MONGO_URI, {
-		useNewUrlParser: true,
-		useUnifiedTopology: true
-	})
+	await connect(MONGO_URI)
 		.then((db) => {
 			console.log('database connected');
 		})
