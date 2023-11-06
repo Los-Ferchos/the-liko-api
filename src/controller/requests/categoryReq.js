@@ -6,7 +6,7 @@ import Category from "../../models/Category";
  * @param {*} req - The request object.
  * @param {*} res - The response object.
  */
-export const saveNewProduct = async (req, res) => {
+export const saveNewCategory = async (req, res) => {
     try {
       const newCategory = new Category(req.body);
       await newCategory.save();
