@@ -18,18 +18,19 @@ export const getAllCategories = async (req, res) => {
 /**
  * Gets an category by its ID as a JSON response.
  *
- * @param {*} request - The request object.
- * @param {*} response - The response object.
+ * @param {*} req - The request object.
+ * @param {*} res - The response object.
  */
-export const getCategoryById = async (request, response) => {
+export const getCategoryById = async (req, res) => {
+    const { id } = req.params;
     try {
-        const category = await Category.findById(request.params.id);
+        const category = await Category.findById(id);
         if (!category) {
-            response.status(404).json({ error: 'Category not found' });
+            res.status(404).json({ error: 'Category not found' });
         } else {
-            response.status(200).json(category);
+            res.status(200).json(category);
         }
     } catch (error) {
-        response.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
   };   

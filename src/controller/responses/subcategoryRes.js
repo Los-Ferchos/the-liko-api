@@ -18,19 +18,19 @@ export const getAllSubcategories = async (req, res) => {
 /**
  * Gets an subcategory by its ID as a JSON response.
  *
- * @param {*} request - The request object.
- * @param {*} response - The response object.
+ * @param {*} req - The request object.
+ * @param {*} res - The response object.
  */
-export const getSubcategoryById = async (request, response) => {
+export const getSubcategoryById = async (req, res) => {
     try {
-        const subcategory = await Subcategory.findById(request.params.id);
+        const subcategory = await Subcategory.findById(req.params.id);
         if (!subcategory) {
-            response.status(404).json({ error: 'Subcategory not found' });
+            res.status(404).json({ error: 'Subcategory not found' });
         } else {
-            response.status(200).json(subcategory);
+            res.status(200).json(subcategory);
         }
     } catch (error) {
-        response.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };  
 
