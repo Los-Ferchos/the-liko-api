@@ -1,4 +1,4 @@
-import Category from "../../models/Category";
+import Category from "../../models/Category.js";
 
 /**
  * Gets a list of all the categories as a JSON response.

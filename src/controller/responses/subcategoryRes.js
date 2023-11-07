@@ -1,4 +1,4 @@
-import Subcategory from "../../models/Subcategory";
+import Subcategory from "../../models/Subcategory.js";
 
 /**
  * Gets a list of all the subcategories as a JSON response.

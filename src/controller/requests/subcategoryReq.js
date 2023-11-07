@@ -1,4 +1,4 @@
-import Subcategory from "../../models/Subcategory";
+import Subcategory from "../../models/Subcategory.js";
 
 /**
  * Saves a new Subcategory.
