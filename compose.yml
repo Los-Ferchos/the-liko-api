@@ -1,0 +1,7 @@
+services:
+  api-rest:
+    build: .
+    image: api_rest_image
+    container_name: api_rest_container
+    ports:
+      - "4000:4000"
