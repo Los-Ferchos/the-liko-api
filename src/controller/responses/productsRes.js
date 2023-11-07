@@ -13,7 +13,7 @@ export const getProductById = async (request, response) => {
       if (!product) {
           response.status(404).json({ error: 'Product not found' });
       } else {
-          response.json(product);
+          response.status(200).json(product);
       }
   } catch (error) {
       response.status(500).json({ error: 'Internal Server Error' });
