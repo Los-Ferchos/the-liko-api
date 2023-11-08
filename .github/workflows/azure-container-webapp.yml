@@ -1,4 +1,4 @@
-name: Despliegue en Azure
+name: Deploy Azure
 
 on:
   push:
@@ -16,31 +16,31 @@ jobs:
       RESOURCE_GROUP_NAME: the-liko-resources
 
     steps:
-    - name: Checkout del código fuente
+    - name: Checkout Code
       uses: actions/checkout@v2
 
-    - name: Iniciar sesión en Azure
+    - name: Loggin Azure CLI
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Autenticar con el Registro de Contenedores de Azure
+    - name: Login Azure Container Registry
       run: az acr login --name $ACR_NAME
 
-    - name: Construir y etiquetar la imagen Docker
+    - name: Build Docker Image
       run: docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }} -f Dockerfile.prod .
       env:
         DOCKER_BUILDKIT: 1
 
-    - name: Empujar la imagen a ACR
+    - name: Push Docker Image
       run: docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }}
       env:
         DOCKER_BUILDKIT: 1
 
-    - name: Desplegar en Azure App Service
+    - name: Deploy Docker Image
       run: az webapp config container set --name $APP_SERVICE_NAME --resource-group $RESOURCE_GROUP_NAME --docker-custom-image-name $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }}
       env:
         DOCKER_BUILDKIT: 1
 
-    - name: Reiniciar el servicio de la aplicación
+    - name: Restart Web App
       run: az webapp restart --name $APP_SERVICE_NAME --resource-group $RESOURCE_GROUP_NAME
