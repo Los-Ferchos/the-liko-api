@@ -27,7 +27,7 @@ export const getProductById = async (request, response) => {
  * @param {*} res - The response object.
 */
 export const getAllProducts = async (req, res) => {
-    const { page = 1, limit = 6 } = req.query;
+    const { page = 1, limit = 6, sort='popularity' } = req.query;
     try {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
