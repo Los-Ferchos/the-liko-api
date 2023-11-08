@@ -24,7 +24,7 @@ jobs:
         context: .
         file: ./Dockerfile.prod
         push: true
-        tags: the-liko-resources.azurecr.io/api_rest_image:latest
+        tags: thelikoresources.azurecr.io/api_rest_image:latest
 
     - name: 'Deploy to Azure App Service'
       uses: azure/webapps-deploy@v2
@@ -32,4 +32,4 @@ jobs:
         app-name: 'apitheliko'
         slot-name: 'production'
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        images: 'the-liko-resources.azurecr.io/api_rest_image:latest'
+        images: 'thelikoresources.azurecr.io/api_rest_image:latest'
