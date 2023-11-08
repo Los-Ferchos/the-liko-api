@@ -1,9 +1,15 @@
-name: Deploy to Azure
+name: Desplegar a Azure
 
 on:
   push:
     branches:
-      - develop
+      - develop  # Reemplaza 'main' con la rama que deseas desplegar
+
+env:
+  AZURE_WEBAPP_NAME: apitheliko  # Reemplaza con el nombre de tu aplicación web en Azure
+  AZURE_WEBAPP_PACKAGE_PATH: '.'  # Reemplaza con la ruta al directorio de tu aplicación
+  DOCKER_IMAGE_NAME: api_rest_image  # Reemplaza con el nombre de tu imagen Docker
+  REGISTRY_NAME: thelikoresources  # Reemplaza con el nombre de tu Azure Container Registry
 
 jobs:
   build-and-deploy:
@@ -19,17 +25,18 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: 'Build and push Docker image'
-      uses: docker/build-push-action@v2
+      uses: azure/docker-login@v1
       with:
-        context: .
-        file: ./Dockerfile.prod
-        push: true
-        tags: thelikoresources.azurecr.io/api_rest_image:latest
+        login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+      run: |
+        docker build -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} -f Dockerfile.prod .
+        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
 
-    - name: 'Deploy to Azure App Service'
+    - name: 'Deploy to Azure Web App Service'
       uses: azure/webapps-deploy@v2
       with:
-        app-name: 'apitheliko'
-        slot-name: 'production'
+        app-name: ${{ env.AZURE_WEBAPP_NAME }}
         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        images: 'thelikoresources.azurecr.io/api_rest_image:latest'
+        images: ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
