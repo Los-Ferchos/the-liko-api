@@ -24,7 +24,7 @@ jobs:
         context: .
         file: ./Dockerfile.prod
         push: true
-        tags: <azure-container-registry-name>.azurecr.io/api_rest_image:latest
+        tags: the-liko-resources.azurecr.io/api_rest_image:latest
 
     - name: 'Deploy to Azure App Service'
       uses: azure/webapps-deploy@v2
