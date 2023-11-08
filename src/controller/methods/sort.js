@@ -6,10 +6,11 @@
  * 2, -2 .- For Price Sorting
  * 3, -3 .- For Rating Sorting
  * 4, -4 .- For Total Reviews Sorting
+ * default .- Popularity (Sells)
  * @returns the key value for the sort way
  */
 export const getSortTypeField = (sortNumber) => {
-    let sortField = 'name';
+    let sortField = 'sells';
 
     switch (sortNumber) {
         case '1':
@@ -35,6 +36,12 @@ export const getSortTypeField = (sortNumber) => {
             break;
         case '-4':
             sortField = 'totalReviews';
+            break;
+        case '5':
+            sortField = 'sells';
+            break;
+        case '-5':
+            sortField = 'sells';
             break;
         default:
             break;

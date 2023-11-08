@@ -28,7 +28,7 @@ export const getProductById = async (request, response) => {
  * @param {*} res - The response object.
 */
 export const getAllProducts = async (req, res) => {
-    const { page = 1, limit = 6, sort } = req.query;
+    const { page = 1, limit = 6, sort=-5 } = req.query;
     try {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
@@ -60,7 +60,7 @@ export const getAllProducts = async (req, res) => {
  * @param {*} res - The response object.
 */
 export const getAllProductsByCategory = async (req, res) => {
-    const { page = 1, limit = 6, sort} = req.query;
+    const { page = 1, limit = 6, sort=-5 } = req.query;
     const { categoryId } = req.params;
   
     try {
@@ -92,7 +92,7 @@ export const getAllProductsByCategory = async (req, res) => {
  * @param {*} res - The response object.
 */
 export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
-    const { page = 1, limit = 6, sort } = req.query;
+    const { page = 1, limit = 6, sort=-5 } = req.query;
     const { categoryId, subcategoryId } = req.params;
   
     try {
@@ -122,7 +122,7 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
  * @param {*} res - The response object.
 */
 export const getAllProductsBySubcategory = async (req, res) => {
-  const { page = 1, limit = 6, sort } = req.query;
+  const { page = 1, limit = 6, sort=-5 } = req.query;
   const { subcategoryId } = req.params;
 
   try {
