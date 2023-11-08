@@ -53,13 +53,3 @@ export const deleteProductById = async (req, res) => {
       res.status(400).json({ error: error.message });
     }
 }
-
-/**
- * Deletes Products with death dates earlier than the current date.
- */
-export const deleteDeathProducts = async () => {
-	const currentDate = new Date();
-	await Product.deleteMany({
-		deathDate: { $lt: currentDate }
-	});
-};
