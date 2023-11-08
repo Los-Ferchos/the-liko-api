@@ -8,27 +8,20 @@ import { generatePagination } from "../methods/methods.js";
  * @param {*} res - The response object.
  */
 export const getAllProductsAlphabeticOrder = async (req, res) => {
-    const { page = 1, limit = 6, sort = 'alphabetical' } = req.query;
-
-    // Definir el campo de orden predeterminado (si no se especifica otro)
-    let sortField = sort;
-
-    // Si se solicita orden alfabético, cambia el campo de orden
-    if (sort === 'alphabetical') {
-        sortField = 'name';
-    }
+    const { page = 1, limit = 6 } = req.query;
 
     try {
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
+        const sortWay = sortField;
 
         // Modifica la consulta para ordenar por el campo apropiado
         const products = await Product.find()
             .skip(startIndex)
             .limit(limit)
             .sort({
-                name:'descending'
-            });;
+                sortWay:1
+            });
 
         const totalProductsCount = await Product.countDocuments();
         const pagination = generatePagination(page, limit, totalProductsCount);
@@ -38,6 +31,6 @@ export const getAllProductsAlphabeticOrder = async (req, res) => {
             pagination
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ error: 'NO DAAAAA' });
     }
 }

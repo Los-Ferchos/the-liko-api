@@ -17,9 +17,9 @@ serverApp.use(cors());
 serverApp.use(express.json());
 serverApp.use(indexRouter);
 serverApp.use(productRouter);
+serverApp.use(sortedProductRouter);
 serverApp.use(categoriesRouter);
 serverApp.use(subcategoriesRouter);
-serverApp.use(sortedProductRouter);
 serverApp.use(routeNotFound);
 
 export default serverApp;
