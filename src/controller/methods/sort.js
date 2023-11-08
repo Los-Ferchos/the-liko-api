@@ -1,11 +1,17 @@
 export const getSortTypeField = (sortNumber) => {
-    let sortField = 'name';
+    let sortField = 'asdaf';
 
     switch (sortNumber) {
-        case '1' || '1':
+        case '1':
             sortField = 'name';
             break;
-        case '2' || '-2':
+        case '-1':
+            sortField = 'name';
+            break;
+        case '2':
+            sortField = 'price';
+            break;
+        case '-2':
             sortField = 'price';
             break;
         default:

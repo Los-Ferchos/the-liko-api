@@ -7,7 +7,6 @@ import productRouter from '../routes/products.routes.js';
 import { routeNotFound } from '../controller/responses/indexRes.js';
 import categoriesRouter from '../routes/categories.routes.js';
 import subcategoriesRouter from '../routes/subcategories.routes.js';
-import sortedProductRouter from '../routes/sort.routes.js';
 
 const serverApp = express();
 dotenv.config();
@@ -17,7 +16,6 @@ serverApp.use(cors());
 serverApp.use(express.json());
 serverApp.use(indexRouter);
 serverApp.use(productRouter);
-serverApp.use(sortedProductRouter);
 serverApp.use(categoriesRouter);
 serverApp.use(subcategoriesRouter);
 serverApp.use(routeNotFound);
