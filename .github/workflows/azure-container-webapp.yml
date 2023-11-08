@@ -1,42 +1,46 @@
-name: Desplegar a Azure
+name: Despliegue en Azure
 
 on:
   push:
     branches:
-      - develop  # Reemplaza 'main' con la rama que deseas desplegar
-
-env:
-  AZURE_WEBAPP_NAME: apitheliko  # Reemplaza con el nombre de tu aplicación web en Azure
-  AZURE_WEBAPP_PACKAGE_PATH: '.'  # Reemplaza con la ruta al directorio de tu aplicación
-  DOCKER_IMAGE_NAME: api_rest_image  # Reemplaza con el nombre de tu imagen Docker
-  REGISTRY_NAME: thelikoresources  # Reemplaza con el nombre de tu Azure Container Registry
+      - develop
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
+    env:
+      ACR_NAME: thelikoresources
+      IMAGE_NAME: api_rest_image
+      APP_SERVICE_NAME: apitheliko
+      RESOURCE_GROUP_NAME: the-liko-resources
+
     steps:
-    - name: 'Checkout GitHub Action'
+    - name: Checkout del código fuente
       uses: actions/checkout@v2
 
-    - name: 'Login via Azure CLI'
+    - name: Iniciar sesión en Azure
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: 'Build and push Docker image'
-      uses: azure/docker-login@v1
-      with:
-        login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
-      run: |
-        docker build -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }} -f Dockerfile.prod .
-        docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+    - name: Autenticar con el Registro de Contenedores de Azure
+      run: az acr login --name $ACR_NAME
 
-    - name: 'Deploy to Azure Web App Service'
-      uses: azure/webapps-deploy@v2
-      with:
-        app-name: ${{ env.AZURE_WEBAPP_NAME }}
-        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-        images: ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+    - name: Construir y etiquetar la imagen Docker
+      run: docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }} -f Dockerfile.prod .
+      env:
+        DOCKER_BUILDKIT: 1
+
+    - name: Empujar la imagen a ACR
+      run: docker push $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }}
+      env:
+        DOCKER_BUILDKIT: 1
+
+    - name: Desplegar en Azure App Service
+      run: az webapp config container set --name $APP_SERVICE_NAME --resource-group $RESOURCE_GROUP_NAME --docker-custom-image-name $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }}
+      env:
+        DOCKER_BUILDKIT: 1
+
+    - name: Reiniciar el servicio de la aplicación
+      run: az webapp restart --name $APP_SERVICE_NAME --resource-group $RESOURCE_GROUP_NAME
