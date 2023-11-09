@@ -12,7 +12,7 @@ jobs:
     env:
       ACR_NAME: ${{ secrets.ACR_NAME }}
       IMAGE_NAME: api_rest_image
-      APP_SERVICE_NAME: apitheliko
+      APP_SERVICE_NAME: ${{ secrets.TEST_SERVICE_NAME }}
       RESOURCE_GROUP_NAME: ${{ secrets.RESOURCE_GROUP_NAME }}
 
     steps:
