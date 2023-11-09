@@ -18,17 +18,20 @@ export const getFilterQuery = (array) => {
     const from = operationsArray[1];
     const to = operationsArray[2];
 
-    var query = {};
+    var query = [];
 
     switch (key) {
         case 1:
-            query = {  $and: [ {"price.value": {$lte: to}}, {"price.value": {$gte: from}}] }
+            query[0] = {"price.value": {$lte: to}};
+            query[1] = {"price.value": {$gte: from}};
             break;
         case 2: 
-            query = {  $and: [ {rating: {$lte: to}}, {rating: {$gte: from}}] }
+            query[0] = {rating: {$lte: to}}
+            query[1] = {rating: {$gte: from}} 
             break;
         case 3: 
-            query = {  $and: [ {"details.abv": {$lte: to}}, {"details.abv": {$gte: from}}] }
+            query[0] = {"details.abv": {$lte: to}}
+            query[1] = {"details.abv": {$gte: from}}
             break;
         default:
             break;
@@ -36,3 +39,30 @@ export const getFilterQuery = (array) => {
 
     return query;
 };
+
+
+export const getFiltersQuery = (ft1, ft2, ft3) => {
+    const filters = [];
+    
+    const filterQuery1 = getFilterQuery(ft1);
+    const filterQuery2 = getFilterQuery(ft2);
+    const filterQuery3 = getFilterQuery(ft3);
+
+    if (Object.keys(filterQuery1).length > 0) {
+        filters[filters.length] = filterQuery1[0]; 
+        filters[filters.length] = filterQuery1[1]; 
+    }
+
+    if (Object.keys(filterQuery2).length > 0) {
+        filters[filters.length] = filterQuery2[0]; 
+        filters[filters.length] = filterQuery2[1]; 
+    }
+
+    if (Object.keys(filterQuery3).length > 0) {
+        filters[filters.length] = filterQuery3[0]; 
+        filters[filters.length] = filterQuery3[1];  
+    }
+
+    return filters;
+
+}
