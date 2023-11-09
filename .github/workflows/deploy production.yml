@@ -1,18 +1,18 @@
-name: Deploy Test 
+name: Deploy Production
 
 on:
   push:
     branches:
-      - test
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     env:
-      ACR_NAME: ${{ secrets.ACR_NAME }}
-      IMAGE_NAME: ${{ secrets.TEST_SERVICE_NAME }}
-      APP_SERVICE_NAME: ${{ secrets.TEST_SERVICE_NAME }}
+      ACR_NAME: ${{ secrets.ACR_NAME }} 
+      IMAGE_NAME: ${{ secrets.PROD_SERVICE_IMAGE }}
+      APP_SERVICE_NAME: ${{ secrets.PROD_SERVICE_NAME }}
       RESOURCE_GROUP_NAME: ${{ secrets.RESOURCE_GROUP_NAME }}
 
     steps:
