@@ -1,4 +1,5 @@
 import Product from "../../models/Product.js";
+import { getFilterQuery } from "../methods/filter.js";
 import { generatePagination } from "../methods/methods.js";
 import { getSortTypeField } from "../methods/sort.js";
 
@@ -28,13 +29,15 @@ export const getProductById = async (request, response) => {
  * @param {*} res - The response object.
 */
 export const getAllProducts = async (req, res) => {
-    const { page = 1, limit = 6, sort=-5 } = req.query;
+    const { page = 1, limit = 6, sort=-5, filter='1_-1_-1' } = req.query;
     try {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
       const sortWay = getSortTypeField(sort);
 
-      const products = await Product.find()
+      const filterQuery = getFilterQuery(filter);
+
+      const products = await Product.find(filterQuery)
           .skip(startIndex)
           .limit(limit)
           .sort({
