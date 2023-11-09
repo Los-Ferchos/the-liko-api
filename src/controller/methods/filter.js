@@ -1,4 +1,16 @@
 
+/**
+ * This method Returns the query in order to send a filter request
+ * 
+ * @param {*} array the filter string array received containing "n_n1_n2" 
+ * n = key, n1 = from range number, n2 = final range number
+ * 
+ * key = 1.- Price Filter option query
+ * key = 2.- Rating Filter option query
+ * key = 3.- Abv Filter option query
+ * 
+ * @returns query for filter  
+ */
 export const getFilterQuery = (array) => {
 
     const operationsArray = array.split("_").map(Number);
