@@ -34,13 +34,11 @@ export const getAllProducts = async (req, res) => {
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
       const sortWay = getSortTypeField(sort);
-
       const filters = getFiltersQuery(ft1, ft2, ft3);
-      console.log(filters);
-      var counter = 0;
 
-      const products = await Product.find(
-        {$and: filters}
+
+      const products = await Product.find( filters.length > 0 ?
+        {$and: filters} : {}
       ).skip(startIndex)
       .limit(limit)
       .sort({
@@ -51,7 +49,6 @@ export const getAllProducts = async (req, res) => {
       const pagination = generatePagination(page, limit, totalProductsCount);
   
       res.status(200).json({
-        filters,
         products,
         pagination
       });
@@ -78,7 +75,11 @@ export const getAllProductsByCategory = async (req, res) => {
       const sortWay = getSortTypeField(sort);
       const filters = getFiltersQuery(ft1, ft2, ft3);
 
-      const products = await Product.find({ category: categoryId }, filters).skip(startIndex).limit(limit)
+      if (filters.length > 0) {
+        filters[filters.length] = { category: categoryId }
+      }
+
+      const products = await Product.find(filters.length > 0 ? {$and: filters} : { category: categoryId }).skip(startIndex).limit(limit)
           .sort({
             [sortWay]: (sort >= 0 ? 1 : -1 ) 
           });
@@ -109,8 +110,13 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
       const endIndex = page * limit;
       const sortWay = getSortTypeField(sort);
       const filters = getFiltersQuery(ft1, ft2, ft3);
+
+      if (filters.length > 0) {
+        filters[filters.length] = { category: categoryId, subcategory: subcategoryId }
+      }
   
-      const products = await Product.find({ category: categoryId, subcategory: subcategoryId }, filters).skip(startIndex).limit(limit).sort({
+      const products = await Product.find(filters.length > 0 ? {$and: filters} : { category: categoryId, subcategory: subcategoryId })
+      .skip(startIndex).limit(limit).sort({
         [sortWay]: (sort >= 0 ? 1 : -1 ) 
       });
       const totalProductsCount = await Product.countDocuments({ category: categoryId, subcategory: subcategoryId });
@@ -141,7 +147,11 @@ export const getAllProductsBySubcategory = async (req, res) => {
     const sortWay = getSortTypeField(sort);
     const filters = getFiltersQuery(ft1, ft2, ft3);
 
-    const products = await Product.find({ subcategory: subcategoryId }, filters).skip(startIndex).limit(limit).sort({
+    if (filters.length > 0) {
+      filters[filters.length] = { subcategory: subcategoryId }
+    }
+
+    const products = await Product.find(filters.length > 0 ? {$and: filters} : { subcategory: subcategoryId }).skip(startIndex).limit(limit).sort({
       [sortWay]: (sort >= 0 ? 1 : -1 ) 
     });
     const totalProductsCount = await Product.countDocuments({ subcategory: subcategoryId });

@@ -41,6 +41,13 @@ export const getFilterQuery = (array) => {
 };
 
 
+/**
+ * Ths method receives multiple filter queries to send a general query validating that are not empty
+ * @param {*} ft1 first filter query
+ * @param {*} ft2 second filter query
+ * @param {*} ft3 third filter query
+ * @returns genera query containing multiple filter queries
+ */
 export const getFiltersQuery = (ft1, ft2, ft3) => {
     const filters = [];
     
@@ -48,17 +55,17 @@ export const getFiltersQuery = (ft1, ft2, ft3) => {
     const filterQuery2 = getFilterQuery(ft2);
     const filterQuery3 = getFilterQuery(ft3);
 
-    if (Object.keys(filterQuery1).length > 0) {
+    if (filterQuery1.length > 0) {
         filters[filters.length] = filterQuery1[0]; 
         filters[filters.length] = filterQuery1[1]; 
     }
 
-    if (Object.keys(filterQuery2).length > 0) {
+    if (filterQuery2.length > 0) {
         filters[filters.length] = filterQuery2[0]; 
         filters[filters.length] = filterQuery2[1]; 
     }
 
-    if (Object.keys(filterQuery3).length > 0) {
+    if (filterQuery3.length > 0) {
         filters[filters.length] = filterQuery3[0]; 
         filters[filters.length] = filterQuery3[1];  
     }
