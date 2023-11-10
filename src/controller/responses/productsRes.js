@@ -67,6 +67,12 @@ export const getAllProducts = async (req, res) => {
   }
 }
 
+/**
+ * Get search suggestions based on the provided search query.
+ *
+ * @param {string} searchQuery - The search query for which suggestions are needed.
+ * @returns {Promise<Array<string>>} - An array of search suggestions.
+ */
 const getSearchSuggestions = async (searchQuery) => {
   try {
     const suggestions = await SearchSuggestion.find({
@@ -191,7 +197,6 @@ export const getAllProductsBySubcategory = async (req, res) => {
 
     let query = {};
 
-    // Agregar filtro de búsqueda por nombre
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
     }
