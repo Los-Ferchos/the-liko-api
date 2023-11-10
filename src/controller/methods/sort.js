@@ -1,5 +1,6 @@
 
 /**
+ * This method Returns the key value for the query in order to sent a sort request
  * 
  * @param {number} sortNumber Sort number 
  * 1, -1 .- For Name Sorting
