@@ -99,6 +99,15 @@ export const getAllProductsByCategory = async (req, res) => {
       query.name = { $regex: new RegExp(search, 'i') };
     }
 
+    const topSellingProducts = await Product.find({
+      $and: [
+        { name: { $regex: new RegExp(search, 'i') } },
+      ]
+    })
+      .sort({ sells: -1 })
+      .limit(5);
+
+
     const products = await Product.find(filters.length > 0 ? { $and: filters, ...query } : { category: categoryId, ...query }).skip(startIndex).limit(limit)
       .sort({
         [sortWay]: (sort >= 0 ? 1 : -1)
@@ -108,6 +117,7 @@ export const getAllProductsByCategory = async (req, res) => {
 
     res.status(200).json({
       products,
+      topSellingProducts,
       pagination
 
     });
@@ -142,6 +152,15 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
       query.name = { $regex: new RegExp(search, 'i') };
     }
 
+    const topSellingProducts = await Product.find({
+      $and: [
+        { name: { $regex: new RegExp(search, 'i') } },
+      ]
+    })
+      .sort({ sells: -1 })
+      .limit(5);
+
+
     const products = await Product.find(filters.length > 0 ? { $and: filters, ...query } : { category: categoryId, subcategory: subcategoryId, ...query })
       .skip(startIndex).limit(limit).sort({
         [sortWay]: (sort >= 0 ? 1 : -1)
@@ -151,6 +170,7 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
 
     res.status(200).json({
       products,
+      topSellingProducts,
       pagination
     });
   } catch (error) {
@@ -184,6 +204,14 @@ export const getAllProductsBySubcategory = async (req, res) => {
       query.name = { $regex: new RegExp(search, 'i') };
     }
 
+    const topSellingProducts = await Product.find({
+      $and: [
+        { name: { $regex: new RegExp(search, 'i') } },
+      ]
+    })
+      .sort({ sells: -1 })
+      .limit(5);
+
     const products = await Product.find(filters.length > 0 ? { $and: filters, ...query } : { subcategory: subcategoryId, ...query }).skip(startIndex).limit(limit).sort({
       [sortWay]: (sort >= 0 ? 1 : -1)
     });
@@ -210,6 +238,7 @@ export const getAllProductsBySubcategory = async (req, res) => {
 
     res.status(200).json({
       products,
+      topSellingProducts,
       pagination
     });
   } catch (error) {
