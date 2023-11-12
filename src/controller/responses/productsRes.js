@@ -41,7 +41,6 @@ export const getAllProducts = async (req, res) => {
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
     }
-
     const products = await Product.find(filters.length > 0 ?
       { $and: filters, ...query } : query
     ).skip(startIndex)
@@ -50,15 +49,22 @@ export const getAllProducts = async (req, res) => {
         [sortWay]: (sort >= 0 ? 1 : -1)
       });
 
+    const topSellingProducts = await Product.find({
+      $and: [
+        { name: { $regex: new RegExp(search, 'i') } },
+      ]
+    })
+      .sort({ sells: -1 })
+      .limit(5);
+
+
     const totalProductsCount = await Product.countDocuments(query);
     const pagination = generatePagination(page, limit, totalProductsCount);
 
-    const searchSuggestions = await getSearchSuggestions(search);
-
     res.status(200).json({
       products,
-      pagination,
-      searchSuggestions
+      topSellingProducts,
+      pagination
     });
   } catch (error) {
     res.status(500).json({
@@ -66,25 +72,6 @@ export const getAllProducts = async (req, res) => {
     });
   }
 }
-
-/**
- * Get search suggestions based on the provided search query.
- *
- * @param {string} searchQuery - The search query for which suggestions are needed.
- * @returns {Promise<Array<string>>} - An array of search suggestions.
- */
-const getSearchSuggestions = async (searchQuery) => {
-  try {
-    const suggestions = await SearchSuggestion.find({
-      term: { $regex: new RegExp(searchQuery, 'i') },
-    }).limit(5);
-
-    return suggestions.map((suggestion) => suggestion.term);
-  } catch (error) {
-    console.error("Error al obtener sugerencias de búsqueda:", error);
-    return [];
-  }
-};
 
 /**
  * Gets a list of products as a JSON response using pagination by category.
@@ -119,12 +106,10 @@ export const getAllProductsByCategory = async (req, res) => {
     const totalProductsCount = await Product.countDocuments({ category: categoryId, ...query });
     const pagination = generatePagination(page, limit, totalProductsCount);
 
-    const searchSuggestions = await getSearchSuggestions(search);
-
     res.status(200).json({
       products,
-      pagination,
-      searchSuggestions
+      pagination
+
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -163,12 +148,10 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
       });
     const totalProductsCount = await Product.countDocuments({ category: categoryId, subcategory: subcategoryId, ...query });
     const pagination = generatePagination(page, limit, totalProductsCount);
-    const searchSuggestions = await getSearchSuggestions(search);
 
     res.status(200).json({
       products,
-      pagination,
-      SearchSuggestion
+      pagination
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -205,7 +188,6 @@ export const getAllProductsBySubcategory = async (req, res) => {
       [sortWay]: (sort >= 0 ? 1 : -1)
     });
     const totalProductsCount = await Product.countDocuments({ subcategory: subcategoryId });
-    const searchSuggestions = await getSearchSuggestions(search);
 
     const pagination = {
       total: totalProductsCount,
@@ -228,8 +210,7 @@ export const getAllProductsBySubcategory = async (req, res) => {
 
     res.status(200).json({
       products,
-      pagination,
-      searchSuggestions
+      pagination
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
