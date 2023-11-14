@@ -34,7 +34,7 @@ export const addToCart = async (req, res) => {
         await newCartItem.save();
         res.status(201).json(newCartItem);
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' + error});
+        res.status(500).json({ error: 'Internal server error'});
     }
 };
 
