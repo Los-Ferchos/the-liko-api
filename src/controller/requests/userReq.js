@@ -22,6 +22,11 @@ export const login = async (req, res) => {
   }
 };
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[+,\.\-_'"!¿?])[A-Za-z\d+,\.\-_'"!¿?]{6,80}$/;
+const namePattern = /^(?!\s{0,2}$)[A-Za-z\s]{3,80}$/;
+
+
 const registerUser = async (req, res) => {
   const newUser = new User({
     username: req.body.username,
@@ -40,40 +45,42 @@ const registerUser = async (req, res) => {
   }
 }
 
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{6,80}$/;
-const namePattern = /^[^\s]{3,80}$/;
+const isValidUserName = (name) => {
+  let isValidName = true;
+  isValidName = namePattern.test(name);
+  const userNameArray = name.split(" ");
+
+  userNameArray.map((word) => {
+    isValidName = namePattern.test(word);
+  });
+  
+  return isValidName;
+}
 
 
-
-//REGISTER
 export const signUp = async (req, res) => {
-  const {username, email, password} = req.body;
-  const isValidEmail = emailPattern.test(email);
-  var isInUse = User.findOne({ email: email }).count > 0;
-  console.log(email);
-  console.log(username);
-
+  const { username, email, password } = req.body;
+  const isValidEmail = emailPattern.test(email.trim());
 
   if (!isValidEmail) {
-    console.log(isValidEmail);
-    console.log("asfasdf");
-    res.status(500).json({error: "Invalid email"});
+    res.status(500).json({ error: "Invalid email" });
+  } else {
+    try {
+      const existingUser = await User.findOne({ email: email }).exec();
 
-  } else if (User.findOne({ email: email }).count > 0) {
-    console.log(isInUse);
-    res.status(500).json({error: "The email inserted is already in use"});
-
-  } else if (!passwordPattern.test(password)) {
-    res.status(500).json({error: "Invalid Password"});
-
-  } else if (!namePattern.test(username)) {
-    res.status(500).json({error: "Invalid User Name"});
-  }
-
-  else {
-    console.log("logged")
-    //registerUser(req, res);
+      if (existingUser) {
+        res.status(500).json({ error: "The email inserted is already in use" });
+      } else if (!passwordPattern.test(password.trim())) {
+        res.status(500).json({ error: "Invalid Password" });
+      } else if (!isValidUserName(username.trim())) {
+        res.status(500).json({ error: "Invalid User Name" });
+      } else {
+        await registerUser(req, res);
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error" });
+    }
   }
 };
+
 
