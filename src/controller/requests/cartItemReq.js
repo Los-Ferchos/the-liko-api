@@ -20,7 +20,9 @@ export const addToCart = async (req, res) => {
         const existingCartItem = await CartItem.findOne({ userId, productId });
 
         if (existingCartItem) {
-            return res.status(400).json({ error: 'Product already in the cart. Use the update method to modify the quantity.' });
+            existingCartItem.quantity = quantity;
+            await existingCartItem.save();
+            return res.status(200).json(existingCartItem);
         }
 
         const newCartItem = new CartItem({
@@ -30,7 +32,6 @@ export const addToCart = async (req, res) => {
         });
 
         await newCartItem.save();
-
         res.status(201).json(newCartItem);
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
