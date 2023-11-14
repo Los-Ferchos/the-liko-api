@@ -1,6 +1,5 @@
 import User from '../../models/User.js';
-import CryptoJS from 'crypto-js';
-
+import CryptoJS from 'crypto-js'
 
 /**
  * Handles user login.
@@ -25,6 +24,7 @@ export const login = async (req, res) => {
 
 const registerUser = async (req, res) => {
   const newUser = new User({
+    username: req.body.username,
     email: req.body.email,
     password: CryptoJS.AES.encrypt(
       req.body.password,
@@ -41,29 +41,39 @@ const registerUser = async (req, res) => {
 }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+])[A-Za-z\d!@#$%^&*()_+]{6,80}$/;
+const namePattern = /^[^\s]{3,80}$/;
+
+
 
 //REGISTER
 export const signUp = async (req, res) => {
-  const [emailRequest, password] = req.body;
-  const isValidEmail = emailPattern.test(emailRequest);
+  const {username, email, password} = req.body;
+  const isValidEmail = emailPattern.test(email);
+  var isInUse = User.findOne({ email: email }).count > 0;
+  console.log(email);
+  console.log(username);
 
-  console.log(emailRequest);
-  console.log(isValidEmail);
 
   if (!isValidEmail) {
+    console.log(isValidEmail);
     console.log("asfasdf");
     res.status(500).json({error: "Invalid email"});
-  } else if (User.findOne({ emailRequest, password })) {
-    
-  } else if (condition) {
-    
-  } else if (condition) {
-    
+
+  } else if (User.findOne({ email: email }).count > 0) {
+    console.log(isInUse);
+    res.status(500).json({error: "The email inserted is already in use"});
+
+  } else if (!passwordPattern.test(password)) {
+    res.status(500).json({error: "Invalid Password"});
+
+  } else if (!namePattern.test(username)) {
+    res.status(500).json({error: "Invalid User Name"});
   }
-  
-  
+
   else {
-    res.status(500).json({error: "Invalid credentials"});
+    console.log("logged")
+    //registerUser(req, res);
   }
 };
 
