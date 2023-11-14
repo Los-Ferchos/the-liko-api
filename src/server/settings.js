@@ -7,6 +7,8 @@ import productRouter from '../routes/products.routes.js';
 import { routeNotFound } from '../controller/responses/indexRes.js';
 import categoriesRouter from '../routes/categories.routes.js';
 import subcategoriesRouter from '../routes/subcategories.routes.js';
+import userRouter from '../routes/user.routes.js';
+import cartItemsRouter from '../routes/cartItem.routes.js';
 
 const serverApp = express();
 dotenv.config();
@@ -18,6 +20,8 @@ serverApp.use(indexRouter);
 serverApp.use(productRouter);
 serverApp.use(categoriesRouter);
 serverApp.use(subcategoriesRouter);
+serverApp.use(userRouter);
+serverApp.use(cartItemsRouter);
 serverApp.use(routeNotFound);
 
 export default serverApp;
