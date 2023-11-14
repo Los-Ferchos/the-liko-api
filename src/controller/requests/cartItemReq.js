@@ -1,5 +1,5 @@
 import CartItem from '../../models/CartItem.js';
-import { checkProductExistsAndGetQuantity, doesUserExistById } from '../methods/validations.js';
+import { doesUserExistById, validateCartItemData } from '../methods/validations.js';
 
 /**
  * Add a new cart item.
@@ -11,25 +11,10 @@ export const addToCart = async (req, res) => {
     try {
         const { userId, productId, quantity } = req.body;
 
-        const userExists = await doesUserExistById(userId);
-        if (!userExists) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        const { errors, productInfo } = await validateCartItemData(userId, productId, quantity);
 
-        const productInfo = await checkProductExistsAndGetQuantity(productId);
-        if (!productInfo.exists) {
-            return res.status(404).json({ error: 'Product not found' });
-        }
-
-        if (quantity < 1) {
-            return res.status(400).json({ error: 'Quantity should be higher than 0' });
-        }
-
-        if(quantity > productInfo.quantity){
-            return res.status(400).json({ 
-                error: `Product stock ${productInfo.quantity} is not enough for the requested quantity`,
-                productQuantity: productInfo.quantity 
-            });
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
         }
 
         const existingCartItem = await CartItem.findOne({ userId, productId });
@@ -51,7 +36,7 @@ export const addToCart = async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
-  
+
 /**
  * Edit the quantity of a product in the user's shopping cart.
  *
@@ -64,43 +49,37 @@ export const addToCart = async (req, res) => {
  */
 export const editCartItemQuantity = async (req, res) => {
     try {
-      const userId = req.params.userId;
-      const productId = req.params.productId;
-  
-      const newQuantity = req.body.quantity;
+        const userId = req.params.userId;
+        const productId = req.params.productId;
 
-      const productInfo = await checkProductExistsAndGetQuantity(productId);
-      if(newQuantity > productInfo.quantity){
-        return res.status(400).json({ 
-            error: `Product stock ${productInfo.quantity} is not enough for the requested quantity`,
-            productQuantity: productInfo.quantity 
-        });
-      }
-  
-      if (!Number.isInteger(newQuantity) || newQuantity < 0) {
-        return res.status(400).json({ error: 'Invalid quantity' });
-      }
-  
-      const cartItem = await CartItem.findOne({ userId, productId });
+        const newQuantity = req.body.quantity;
 
-      if (!cartItem) {
-        return res.status(404).json({ error: 'Cart item not found for the specified user and product' });
-      }
-  
-      cartItem.quantity = newQuantity;
-  
-      if (newQuantity === 0) {
-        await cartItem.remove();
-        return res.status(200).json({ message: 'Cart item deleted successfully' });
-      }
-  
-      const updatedCartItem = await cartItem.save();
-      res.status(200).json(updatedCartItem);
+        const { errors, productInfo } = await validateCartItemData(userId, productId, newQuantity);
+
+        if (errors.length > 0) {
+            return res.status(400).json({ errors });
+        }
+
+        const cartItem = await CartItem.findOne({ userId, productId });
+
+        if (!cartItem) {
+            return res.status(404).json({ error: 'Cart item not found for the specified user and product' });
+        }
+
+        cartItem.quantity = newQuantity;
+
+        if (newQuantity === 0) {
+            await cartItem.remove();
+            return res.status(200).json({ message: 'Cart item deleted successfully' });
+        }
+
+        const updatedCartItem = await cartItem.save();
+        res.status(200).json(updatedCartItem);
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
-  
+
 /**
  * Delete a cart item from the user's shopping cart.
  *
@@ -113,20 +92,20 @@ export const editCartItemQuantity = async (req, res) => {
  */
 export const deleteCartItem = async (req, res) => {
     try {
-      const userId = req.params.userId;
-      const productId = req.params.productId;
+        const userId = req.params.userId;
+        const productId = req.params.productId;
 
-      const cartItem = await CartItem.findOne({ userId, productId });
-  
-      if (!cartItem) {
-        return res.status(404).json({ error: 'Cart item not found for the specified user and product' });
-      }
+        const cartItem = await CartItem.findOne({ userId, productId });
 
-      await cartItem.remove();
-  
-      res.status(200).json({ message: 'Cart item deleted successfully' });
+        if (!cartItem) {
+            return res.status(404).json({ error: 'Cart item not found for the specified user and product' });
+        }
+
+        await cartItem.remove();
+
+        res.status(200).json({ message: 'Cart item deleted successfully' });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
@@ -142,23 +121,22 @@ export const deleteCartItem = async (req, res) => {
  */
 export const deleteAllCartItems = async (req, res) => {
     try {
-      const userId = req.params.userId;
+        const userId = req.params.userId;
 
-      await CartItem.deleteMany({ userId });
+        await CartItem.deleteMany({ userId });
 
-      const cartItemsExist = await CartItem.exists({ userId });
+        const cartItemsExist = await CartItem.exists({ userId });
 
-      if (!cartItemsExist) {
-        return res.status(404).json({ error: 'No cart items found for the specified user' });
-      }
-  
-      res.status(200).json({ message: 'All cart items deleted successfully' });
+        if (!cartItemsExist) {
+            return res.status(404).json({ error: 'No cart items found for the specified user' });
+        }
+
+        res.status(200).json({ message: 'All cart items deleted successfully' });
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' });
     }
-  };
-  
-  
+};
+
 /**
  * Add multiple cart items to the user's shopping cart.
  *
@@ -171,71 +149,53 @@ export const deleteAllCartItems = async (req, res) => {
  */
 export const addMultipleToCart = async (req, res) => {
     try {
-      const { userId, cartItems } = req.body;
-  
-      const userExists = await doesUserExistById(userId);
-      if (!userExists) {
-        return res.status(404).json({ error: 'User not found' });
-      }
-  
-      const failedToAdd = [];
-  
-      const updatedCartItems = [];
-      for (const cartItemData of cartItems) {
-        const { productId, quantity } = cartItemData;
-  
-        const product = await checkProductExistsAndGetQuantity(productId);
-  
-        if (!product.exists) {
-          failedToAdd.push({
-            productId,
-            reason: 'Product not found',
-          });
-          continue;
-        }
-  
-        if (!Number.isInteger(quantity) || quantity < 1) {
-          failedToAdd.push({
-            productId,
-            reason: 'Quantity should be higher than 0',
-          });
-          continue;
+        const { userId, cartItems } = req.body;
+
+        const userExists = await doesUserExistById(userId);
+        if (!userExists) {
+            return res.status(404).json({ error: 'User not found' });
         }
 
-        if(quantity > product.quantity){
-            failedToAdd.push({
-                productId,
-                reason: `Product stock ${product.quantity} is not enough for the requested quantity`,
-                productQuantity: product.quantity 
-            });
-            continue;
+        const failedToAdd = [];
+
+        const updatedCartItems = [];
+        for (const cartItemData of cartItems) {
+            const { productId, quantity } = cartItemData;
+
+            const { errors, productInfo } = await validateCartItemData(userId, productId, quantity);
+
+            if (errors.length > 0) {
+                failedToAdd.push({
+                    productId,
+                    reason: errors[0].error,
+                });
+                continue;
+            }
+
+            const existingCartItem = await CartItem.findOne({ userId, productId });
+
+            if (existingCartItem) {
+                existingCartItem.quantity += quantity;
+                await existingCartItem.save();
+                updatedCartItems.push(existingCartItem);
+            } else {
+                const newCartItem = new CartItem({
+                    userId,
+                    productId,
+                    quantity,
+                });
+                await newCartItem.save();
+                updatedCartItems.push(newCartItem);
+            }
         }
-  
-        const existingCartItem = await CartItem.findOne({ userId, productId });
-  
-        if (existingCartItem) {
-          existingCartItem.quantity += quantity;
-          await existingCartItem.save();
-          updatedCartItems.push(existingCartItem);
-        } else {
-          const newCartItem = new CartItem({
-            userId,
-            productId,
-            quantity,
-          });
-          await newCartItem.save();
-          updatedCartItems.push(newCartItem);
-        }
-      }
-  
-      const response = {
-        updatedCartItems,
-        failedToAdd,
-      };
-  
-      res.status(200).json(response);
+
+        const response = {
+            updatedCartItems,
+            failedToAdd,
+        };
+
+        res.status(200).json(response);
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' });
     }
-  };
-  
+};
