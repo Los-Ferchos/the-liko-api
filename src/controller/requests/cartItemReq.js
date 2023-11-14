@@ -41,8 +41,42 @@ export const addToCart = async (req, res) => {
   
       res.status(201).json(newCartItem);
     } catch (error) {
-      console.error(error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  };
+};   
+  
+/**
+ * Edit the quantity of a product in the user's shopping cart.
+ *
+ * @function
+ * @async
+ * @param {Express.Request} req - Express request object.
+ * @param {Express.Response} res - Express response object.
+ * @returns {Object} - JSON response with the updated cart item.
+ * @throws {Object} - JSON response with an error message if an error occurs.
+ */
+export const editCartItemQuantity = async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const productId = req.params.productId;
+      const newQuantity = req.body.quantity;
+  
+      if (!newQuantity || newQuantity < 1) {
+        return res.status(400).json({ error: 'Invalid quantity' });
+      }
+
+      const cartItem = await CartItem.findOne({ userId, productId });
+
+      if (!cartItem) {
+        return res.status(404).json({ error: 'Cart item not found for the specified user and product' });
+      }
+  
+      cartItem.quantity = newQuantity;
+      const updatedCartItem = await cartItem.save();
+  
+      res.status(200).json(updatedCartItem);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+};
   
