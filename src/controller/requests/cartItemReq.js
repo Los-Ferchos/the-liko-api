@@ -11,7 +11,7 @@ export const addToCart = async (req, res) => {
     try {
         const { userId, productId, quantity } = req.body;
 
-        const { errors, productInfo } = await validateCartItemData(userId, productId, quantity);
+        const { errors } = await validateCartItemData(userId, productId, quantity);
 
         if (errors.length > 0) {
             return res.status(400).json({ errors });
@@ -55,7 +55,7 @@ export const editCartItemQuantity = async (req, res) => {
 
         const newQuantity = req.body.quantity;
 
-        const { errors, productInfo } = await validateCartItemData(userId, productId, newQuantity);
+        const { errors } = await validateCartItemData(userId, productId, newQuantity);
 
         if (errors.length > 0) {
             return res.status(400).json({ errors });
@@ -148,44 +148,12 @@ export const deleteAllCartItems = async (req, res) => {
 export const addMultipleToCart = async (req, res) => {
     try {
         const { userId, cartItems } = req.body;
-
         const userExists = await doesUserExistById(userId);
         if (!userExists) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const failedToAdd = [];
-
-        const updatedCartItems = [];
-        for (const cartItemData of cartItems) {
-            const { productId, quantity } = cartItemData;
-
-            const { errors, productInfo } = await validateCartItemData(userId, productId, quantity);
-
-            if (errors.length > 0) {
-                failedToAdd.push({
-                    productId,
-                    reason: errors[0].error,
-                });
-                continue;
-            }
-
-            const existingCartItem = await CartItem.findOne({ userId, productId });
-
-            if (existingCartItem) {
-                existingCartItem.quantity += quantity;
-                await existingCartItem.save();
-                updatedCartItems.push(existingCartItem);
-            } else {
-                const newCartItem = new CartItem({
-                    userId,
-                    productId,
-                    quantity,
-                });
-                await newCartItem.save();
-                updatedCartItems.push(newCartItem);
-            }
-        }
+        const { updatedCartItems, failedToAdd } = await processCartItems(userId, cartItems);
 
         const response = {
             updatedCartItems,
@@ -196,4 +164,42 @@ export const addMultipleToCart = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: 'Internal server error' });
     }
+};
+
+/**
+ * Process cart items and update the user's shopping cart.
+ *
+ * @function
+ * @async
+ * @param {string} userId - User ID.
+ * @param {Array} cartItems - Array of cart items to be added.
+ * @returns {Object} - Object containing updated and failed cart items.
+ */
+const processCartItems = async (userId, cartItems) => {
+    const failedToAdd = [];
+    const updatedCartItems = [];
+
+    for (const cartItemData of cartItems) {
+        const { productId, quantity } = cartItemData;
+        const { errors } = await validateCartItemData(userId, productId, quantity);
+
+        if (errors.length > 0) {
+            failedToAdd.push({  productId, reason: errors[0].error, });
+            continue;
+        }
+
+        const existingCartItem = await CartItem.findOne({ userId, productId });
+
+        if (existingCartItem) {
+            existingCartItem.quantity += quantity;
+            await existingCartItem.save();
+            updatedCartItems.push(existingCartItem);
+        } else {
+            const newCartItem = new CartItem({ userId, productId, quantity });
+            await newCartItem.save();
+            updatedCartItems.push(newCartItem);
+        }
+    }
+
+    return { updatedCartItems, failedToAdd };
 };
