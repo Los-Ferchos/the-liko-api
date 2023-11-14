@@ -13,14 +13,12 @@ import CartItem from "../../models/CartItem.js";
 export const getCartItems = async (req, res) => {
     try {
       const userId = req.params.userId;
-  
       const cartItems = await CartItem.find({ userId }).populate('productId');
   
       if (!cartItems) {
         return res.status(404).json({ error: 'Cart not found for the specified user' });
       }
   
-      // Map cart items to include full product information
       const cartItemsWithProductInfo = cartItems.map((cartItem) => {
         const { _id, quantity } = cartItem;
         const { name, description, rating, totalReviews, sells, quantity: productQuantity, imgUrl, category, subcategory, price, details, drinkMixes, combos } = cartItem.productId;

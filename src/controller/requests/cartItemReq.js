@@ -1,4 +1,5 @@
 import CartItem from '../../models/CartItem.js';
+import { doesUserExistById } from '../methods/validations.js';
 
 /**
  * Add a new cart item.
@@ -8,42 +9,48 @@ import CartItem from '../../models/CartItem.js';
  */
 export const addToCart = async (req, res) => {
     try {
-      const { userId, productId, quantity } = req.body;
-  
-      // Check if the user and product exist
-  
-      // Check if the cart item already exists
-      const existingCartItem = await CartItem.findOne({ userId, productId });
-  
-      if (existingCartItem) {
-        return res.status(400).json({ error: 'Product already in the cart. Use the update method to modify the quantity.' });
-      }
-  
-      const errorMessages = {
-        userId: 'User ID is required',
-        productId: 'Product ID is required',
-        quantity: 'Quantity must be a positive number',
-      };
-  
-      for (const field in errorMessages) {
-        if (!req.body[field] || (field === 'quantity' && req.body[field] < 1)) {
-          return res.status(400).json({ error: errorMessages[field] });
-        }
-      }
-  
-      const newCartItem = new CartItem({
-        userId,
-        productId,
-        quantity,
-      });
+        const { userId, productId, quantity } = req.body;
 
-      await newCartItem.save();
-  
-      res.status(201).json(newCartItem);
+        const userExists = await doesUserExistById(userId);
+        if (!userExists) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const productInfo = await checkProductExistsAndGetQuantity(productId);
+        if (!productInfo.exists) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        if (quantity < 1) {
+            return res.status(400).json({ error: 'Quantity should be higher than 0' });
+        }
+
+        if( quantity > productInfo.quantity){
+            return res.status(400).json({ 
+                error: `Product stock ${productInfo.quantity} is not enough for the requested quantity`,
+                productQuantity: productInfo.quantity 
+            });
+        }
+
+        const existingCartItem = await CartItem.findOne({ userId, productId });
+
+        if (existingCartItem) {
+            return res.status(400).json({ error: 'Product already in the cart. Use the update method to modify the quantity.' });
+        }
+
+        const newCartItem = new CartItem({
+            userId,
+            productId,
+            quantity,
+        });
+
+        await newCartItem.save();
+
+        res.status(201).json(newCartItem);
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: 'Internal server error' });
     }
-};   
+};
   
 /**
  * Edit the quantity of a product in the user's shopping cart.
@@ -61,6 +68,14 @@ export const editCartItemQuantity = async (req, res) => {
       const productId = req.params.productId;
   
       const newQuantity = req.body.quantity;
+
+      const productInfo = await checkProductExistsAndGetQuantity(productId);
+      if(newQuantity > productInfo.quantity){
+        return res.status(400).json({ 
+            error: `Product stock ${productInfo.quantity} is not enough for the requested quantity`,
+            productQuantity: productInfo.quantity 
+        });
+      }
   
       if (!Number.isInteger(newQuantity) || newQuantity < 0) {
         return res.status(400).json({ error: 'Invalid quantity' });
