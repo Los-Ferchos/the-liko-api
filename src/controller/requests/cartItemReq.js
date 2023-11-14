@@ -59,12 +59,13 @@ export const editCartItemQuantity = async (req, res) => {
     try {
       const userId = req.params.userId;
       const productId = req.params.productId;
+  
       const newQuantity = req.body.quantity;
   
-      if (!newQuantity || newQuantity < 1) {
+      if (!Number.isInteger(newQuantity) || newQuantity < 0) {
         return res.status(400).json({ error: 'Invalid quantity' });
       }
-
+  
       const cartItem = await CartItem.findOne({ userId, productId });
 
       if (!cartItem) {
@@ -72,9 +73,43 @@ export const editCartItemQuantity = async (req, res) => {
       }
   
       cartItem.quantity = newQuantity;
-      const updatedCartItem = await cartItem.save();
   
+      if (newQuantity === 0) {
+        await cartItem.remove();
+        return res.status(200).json({ message: 'Cart item deleted successfully' });
+      }
+  
+      const updatedCartItem = await cartItem.save();
       res.status(200).json(updatedCartItem);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+};
+  
+/**
+ * Delete a cart item from the user's shopping cart.
+ *
+ * @function
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Object} - JSON response indicating the success of the operation.
+ * @throws {Object} - JSON response with an error message if an error occurs.
+ */
+export const deleteCartItem = async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const productId = req.params.productId;
+
+      const cartItem = await CartItem.findOne({ userId, productId });
+  
+      if (!cartItem) {
+        return res.status(404).json({ error: 'Cart item not found for the specified user and product' });
+      }
+
+      await cartItem.remove();
+  
+      res.status(200).json({ message: 'Cart item deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
     }
