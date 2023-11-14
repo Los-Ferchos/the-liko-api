@@ -19,19 +19,19 @@ export const validateCartItemData = async (userId, productId, quantity) => {
     const productInfo = await checkProductExistsAndGetQuantity(productId);
     if (!productInfo.exists) {
         errors.push({ field: 'productId', error: 'Product not found' });
-    }
-    
-    if (!Number.isInteger(quantity) || quantity < 1) {
-        errors.push({ field: 'quantity', error: 'Quantity should be higher than 0' });
-    }
-
-    else if (quantity > productInfo.quantity) {
+    } else if (quantity > productInfo.quantity) {
         errors.push({
             field: 'quantity',
             error: `Product stock: ${productInfo.quantity} is not enough for the requested quantity: ${quantity}`,
             productQuantity: productInfo.quantity,
         });
     }
+    
+    if (!Number.isInteger(quantity) || quantity < 1) {
+        errors.push({ field: 'quantity', error: 'Quantity should be higher than 0' });
+    }
+
+
 
     return { errors, productInfo };
 };
@@ -50,7 +50,7 @@ export const doesUserExistById = async (userId) => {
         const user = await User.findById(userId);
         return !!user;
     } catch (error) {
-        throw new Error('Error checking user existence by ID');
+        return false;
     }
 };
 
@@ -72,7 +72,6 @@ export const checkProductExistsAndGetQuantity = async (productId) => {
         }
         return { exists: true, quantity: product.quantity };
     } catch (error) {
-        console.error(error);
         return { exists: false, quantity: 0 };
     }
 };
