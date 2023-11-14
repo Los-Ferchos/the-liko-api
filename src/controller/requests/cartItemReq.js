@@ -1,5 +1,5 @@
 import CartItem from '../../models/CartItem.js';
-import { doesUserExistById } from '../methods/validations.js';
+import { checkProductExistsAndGetQuantity, doesUserExistById } from '../methods/validations.js';
 
 /**
  * Add a new cart item.
@@ -25,7 +25,7 @@ export const addToCart = async (req, res) => {
             return res.status(400).json({ error: 'Quantity should be higher than 0' });
         }
 
-        if( quantity > productInfo.quantity){
+        if(quantity > productInfo.quantity){
             return res.status(400).json({ 
                 error: `Product stock ${productInfo.quantity} is not enough for the requested quantity`,
                 productQuantity: productInfo.quantity 
@@ -158,4 +158,84 @@ export const deleteAllCartItems = async (req, res) => {
     }
   };
   
+  
+/**
+ * Add multiple cart items to the user's shopping cart.
+ *
+ * @function
+ * @async
+ * @param {Express.Request} req - Express request object.
+ * @param {Express.Response} res - Express response object.
+ * @returns {Object} - JSON response with the updated cart items.
+ * @throws {Object} - JSON response with information about products that couldn't be added.
+ */
+export const addMultipleToCart = async (req, res) => {
+    try {
+      const { userId, cartItems } = req.body;
+  
+      const userExists = await doesUserExistById(userId);
+      if (!userExists) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      const failedToAdd = [];
+  
+      const updatedCartItems = [];
+      for (const cartItemData of cartItems) {
+        const { productId, quantity } = cartItemData;
+  
+        const product = await checkProductExistsAndGetQuantity(productId);
+  
+        if (!product.exists) {
+          failedToAdd.push({
+            productId,
+            reason: 'Product not found',
+          });
+          continue;
+        }
+  
+        if (!Number.isInteger(quantity) || quantity < 1) {
+          failedToAdd.push({
+            productId,
+            reason: 'Quantity should be higher than 0',
+          });
+          continue;
+        }
+
+        if(quantity > product.quantity){
+            failedToAdd.push({
+                productId,
+                reason: `Product stock ${product.quantity} is not enough for the requested quantity`,
+                productQuantity: product.quantity 
+            });
+            continue;
+        }
+  
+        const existingCartItem = await CartItem.findOne({ userId, productId });
+  
+        if (existingCartItem) {
+          existingCartItem.quantity += quantity;
+          await existingCartItem.save();
+          updatedCartItems.push(existingCartItem);
+        } else {
+          const newCartItem = new CartItem({
+            userId,
+            productId,
+            quantity,
+          });
+          await newCartItem.save();
+          updatedCartItems.push(newCartItem);
+        }
+      }
+  
+      const response = {
+        updatedCartItems,
+        failedToAdd,
+      };
+  
+      res.status(200).json(response);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
   
