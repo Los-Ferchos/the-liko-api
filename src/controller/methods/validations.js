@@ -25,10 +25,10 @@ export const validateCartItemData = async (userId, productId, quantity) => {
         errors.push({ field: 'quantity', error: 'Quantity should be higher than 0' });
     }
 
-    if (quantity > productInfo.quantity) {
+    else if (quantity > productInfo.quantity) {
         errors.push({
             field: 'quantity',
-            error: `Product stock ${productInfo.quantity} is not enough for the requested quantity`,
+            error: `Product stock: ${productInfo.quantity} is not enough for the requested quantity: ${quantity}`,
             productQuantity: productInfo.quantity,
         });
     }

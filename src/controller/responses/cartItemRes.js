@@ -21,26 +21,11 @@ export const getCartItems = async (req, res) => {
   
       const cartItemsWithProductInfo = cartItems.map((cartItem) => {
         const { _id, quantity } = cartItem;
-        const { name, description, rating, totalReviews, sells, quantity: productQuantity, imgUrl, category, subcategory, price, details, drinkMixes, combos } = cartItem.productId;
   
         return {
           cartItemId: _id,
           quantity,
-          productInfo: {
-            name,
-            description,
-            rating,
-            totalReviews,
-            sells,
-            productQuantity,
-            imgUrl,
-            category,
-            subcategory,
-            price,
-            details,
-            drinkMixes,
-            combos,
-          },
+          productInfo: cartItem.productId
         };
       });
   
