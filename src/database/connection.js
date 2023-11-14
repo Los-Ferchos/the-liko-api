@@ -3,6 +3,8 @@ import { set, connect } from 'mongoose';
 set('strictQuery', true);
 const MONGO_URI = 'mongodb+srv://Backend:0VYyi8776OlO6ps3@clusterdev.v10d7k7.mongodb.net/TheLiko?retryWrites=true&w=majority';
 
+
+
 /**
  * Method to connect server to the database.
  */
