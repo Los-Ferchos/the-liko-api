@@ -15,12 +15,12 @@ import { Schema, model } from 'mongoose';
  */
 const cartItemSchema = new Schema({
     userId: { 
-        type: String, 
-        required: true 
+        type: Schema.Types.ObjectId,
+        ref: 'User'
     },
     productId: { 
-        type: String, 
-        required: true 
+        type: Schema.Types.ObjectId,
+        ref: 'Product'
     },
     quantity: { 
         type: Number, 
