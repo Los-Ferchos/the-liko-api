@@ -114,4 +114,33 @@ export const deleteCartItem = async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+/**
+ * Delete all cart items for a user from the shopping cart.
+ *
+ * @function
+ * @async
+ * @param {Express.Request} req - Express request object.
+ * @param {Express.Response} res - Express response object.
+ * @returns {Object} - JSON response indicating the success of the operation.
+ * @throws {Object} - JSON response with an error message if an error occurs.
+ */
+export const deleteAllCartItems = async (req, res) => {
+    try {
+      const userId = req.params.userId;
+
+      await CartItem.deleteMany({ userId });
+
+      const cartItemsExist = await CartItem.exists({ userId });
+
+      if (!cartItemsExist) {
+        return res.status(404).json({ error: 'No cart items found for the specified user' });
+      }
+  
+      res.status(200).json({ message: 'All cart items deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  
   
