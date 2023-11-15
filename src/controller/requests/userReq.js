@@ -12,6 +12,7 @@ export const login = async (req, res) => {
 
   try {
     const user = await User.findOne({ email: email });
+    console.log('User:', user);
 
     if (user) {
       decryptPassword(user, req, res);
@@ -36,10 +37,11 @@ export const login = async (req, res) => {
 const decryptPassword = (user, req, res) => {
   const hashedPassword = CryptoJS.AES.decrypt(
     user.password,
-    process.env.PSWD_DECRYPT_CODE
+    process.env.PSWD_DECRYPT_CODE || ""
   );
 
   const storedPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+  console.log(storedPassword);
 
   if (storedPassword !== req.body.password) {
     res.status(401).json({ message: 'Wrong Password' });
