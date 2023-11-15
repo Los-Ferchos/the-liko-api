@@ -12,7 +12,6 @@ export const login = async (req, res) => {
 
   try {
     const user = await User.findOne({ email: email });
-    console.log('User:', user);
 
     if (user) {
       decryptPassword(user, req, res);
