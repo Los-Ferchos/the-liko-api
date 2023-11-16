@@ -1,5 +1,7 @@
+import { getHTMLInvoice } from "../methods/getHTMLInvoice";
+
 const sendInvoice = async (req, res) => {
-    const { userId } = req.params;
+    const { nit, name, cartItems, totalCost } = req.body;
 
     const invoiceNumber = generateInvoiceNumber();
   
@@ -16,29 +18,21 @@ const sendInvoice = async (req, res) => {
       name: 'localhost',
       host: 'smtp.gmail.com'
     });
-  
-    const invoiceHtml = `<html>
-      <head>
-        <style>
-          /* Add your CSS styles here */
-        </style>
-      </head>
-      <body>
-        <h1>Invoice</h1>
-        <p>Invoice Number:</p>
-        <!-- Add more HTML content as needed -->
-      </body>
-    </html>`;
-  
-    // Define the email options
+
+    const currentDate = new Date();
+    const formattedDate = new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(currentDate);
+    
     const mailOptions = {
       from: 'thelikoecommerce@gmail.com',
-      to: 'correoejemplo12353@gmail.com', // Update with the user's email address
-      subject: 'Hello',
-      html: invoiceHtml,
+      to: 'correoejemplo12353@gmail.com',
+      subject: 'Invoice for Your Recent Purchase',
+      html: getHTMLInvoice(invoiceNumber, formattedDate, totalCost, nit, name, cartItems, "BOB"),
     };
   
-    // Send the email
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         return res.status(500).send(`Error sending the invoice: ${error}`);
