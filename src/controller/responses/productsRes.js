@@ -217,24 +217,7 @@ export const getAllProductsBySubcategory = async (req, res) => {
     });
     const totalProductsCount = await Product.countDocuments({ subcategory: subcategoryId });
 
-    const pagination = {
-      total: totalProductsCount,
-      limit: limit,
-      totalPages: Math.ceil(totalProductsCount / limit),
-      page: parseInt(page)
-    };
-
-    if (endIndex < totalProductsCount) {
-      pagination.next = {
-        page: parseInt(page) + 1
-      };
-    }
-
-    if (startIndex > 0) {
-      pagination.prev = {
-        page: parseInt(page) - 1
-      };
-    }
+    const pagination = generatePagination(page, limit, totalProductsCount);
 
     res.status(200).json({
       products,

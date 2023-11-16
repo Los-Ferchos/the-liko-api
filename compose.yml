@@ -9,6 +9,7 @@ services:
       - "80:80"
     environment:
       - PORT=80
+      - PSWD_DECRYPT_CODE="likoson"
 
   dev-env:
     build: 
@@ -20,5 +21,6 @@ services:
       - "81:81"
     environment:
       - PORT=81
+      - PSWD_DECRYPT_CODE="likoson"
     volumes:
       - ./src:/usr/src/app/src

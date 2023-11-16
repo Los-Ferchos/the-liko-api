@@ -9,7 +9,7 @@ import categoriesRouter from '../routes/categories.routes.js';
 import subcategoriesRouter from '../routes/subcategories.routes.js';
 import userRouter from '../routes/user.routes.js';
 import checkoutRouter from '../routes/checkout.routes.js';
-
+import cartItemsRouter from '../routes/cartItem.routes.js';
 const serverApp = express();
 dotenv.config();
 
@@ -22,6 +22,7 @@ serverApp.use(categoriesRouter);
 serverApp.use(subcategoriesRouter);
 serverApp.use(userRouter);
 serverApp.use(checkoutRouter);
+serverApp.use(cartItemsRouter);
 serverApp.use(routeNotFound);
 
 export default serverApp;
