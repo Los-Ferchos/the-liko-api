@@ -1,6 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { getHTMLInvoice } from "../methods/getHTMLInvoice.js";
 import nodemailer from 'nodemailer';
+import User from "../../models/User.js";
 
 const CLIENT_ID = '689024350629-26q1vf3a7mbmek5ump7mtnks152kgvhm.apps.googleusercontent.com';
 const CLIENT_SECRET = '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';
@@ -15,7 +16,7 @@ authUrl.setCredentials({ refresh_token: REFRESH_TOKEN})
 const accessToken = authUrl.getAccessToken();
 
 export const sendInvoice = async (req, res) => {
-    const { nit, name, cartItems, totalCost } = req.body;
+    const { nit, name, cartItems, totalCost, userId } = req.body;
 
     const invoiceNumber = generateInvoiceNumber();
   
@@ -32,6 +33,8 @@ export const sendInvoice = async (req, res) => {
       host: 'smtp.gmail.com'
     });
 
+    const user = await User.findOne({ username });
+
     const currentDate = new Date();
     const formattedDate = new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -41,7 +44,7 @@ export const sendInvoice = async (req, res) => {
     
     const mailOptions = {
       from: 'thelikoecommerce@gmail.com',
-      to: 'correoejemplo12353@gmail.com',
+      to: user.email,
       subject: 'The Liko - Invoice',
       html: getHTMLInvoice(invoiceNumber, formattedDate, totalCost, nit, name, cartItems, "BOB"),
     };
