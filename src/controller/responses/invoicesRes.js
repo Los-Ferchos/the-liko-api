@@ -33,7 +33,7 @@ export const sendInvoice = async (req, res) => {
       host: 'smtp.gmail.com'
     });
 
-    const user = await User.findOne({ username });
+    const user = await User.findOne(userId);
 
     const currentDate = new Date();
     const formattedDate = new Intl.DateTimeFormat('en-US', {
