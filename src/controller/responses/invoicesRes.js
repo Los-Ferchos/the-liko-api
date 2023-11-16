@@ -1,6 +1,20 @@
-import { getHTMLInvoice } from "../methods/getHTMLInvoice";
+import { OAuth2Client } from "google-auth-library";
+import { getHTMLInvoice } from "../methods/getHTMLInvoice.js";
+import nodemailer from 'nodemailer';
 
-const sendInvoice = async (req, res) => {
+const CLIENT_ID = '689024350629-26q1vf3a7mbmek5ump7mtnks152kgvhm.apps.googleusercontent.com';
+const CLIENT_SECRET = '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';
+const REFRESH_TOKEN = "1//04j8NNgW7E2lxCgYIARAAGAQSNwF-L9IrzEH6kwTRML5H4oKxp5Q7aez1XshoBV8PT5YAXruTBT_re_l-HKsQCsgioYNCpZsC04E";
+
+const authUrl = new OAuth2Client({
+  clientId: CLIENT_ID,
+  clientSecret: CLIENT_SECRET,
+});
+authUrl.setCredentials({ refresh_token: REFRESH_TOKEN})
+
+const accessToken = authUrl.getAccessToken();
+
+export const sendInvoice = async (req, res) => {
     const { nit, name, cartItems, totalCost } = req.body;
 
     const invoiceNumber = generateInvoiceNumber();
@@ -29,7 +43,7 @@ const sendInvoice = async (req, res) => {
     const mailOptions = {
       from: 'thelikoecommerce@gmail.com',
       to: 'correoejemplo12353@gmail.com',
-      subject: 'Invoice for Your Recent Purchase',
+      subject: 'The Liko - Invoice',
       html: getHTMLInvoice(invoiceNumber, formattedDate, totalCost, nit, name, cartItems, "BOB"),
     };
   
