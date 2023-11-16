@@ -10,12 +10,19 @@ import CryptoJS from 'crypto-js'
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
+  if (Object.keys(req.body).length > 2) {
+    return res.status(400).json({ message: 'Too many parameters in the request' });
+  }
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
+
   try {
     const user = await User.findOne({ email: email });
 
     if (user) {
       decryptPassword(user, req, res);
-
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
     }
