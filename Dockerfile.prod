@@ -4,6 +4,8 @@ RUN mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app
 
+ENV PSWD_DECRYPT_CODE="likoson"
+
 COPY package.json ./ 
 
 RUN npm install

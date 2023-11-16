@@ -29,7 +29,6 @@ export const sendInvoice = async (req, res) => {
         accessToken,
         refreshToken: REFRESH_TOKEN
       },
-      name: 'localhost',
       host: 'smtp.gmail.com'
     });
 
