@@ -6,7 +6,7 @@ export const addNewOrder = async (req, res) => {
     const newOrder = await Order.create(newOrderData);
     res.status(201).json(newOrder);
   } catch (err) {
-    res.status(500).json({ error: 'Error to add a new Order' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
@@ -20,7 +20,7 @@ export const editOrder = async (req, res) => {
     }
     res.status(200).json(updatedOrder);
   } catch (err) {
-    res.status(500).json({ error: 'Error when saving the order' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
@@ -33,7 +33,7 @@ export const deleteOrder = async (req, res) => {
     }
     res.status(200).json({ message: 'Order deleted successfully' });
   } catch (err) {
-    res.status(500).json({ error: 'Error when deleting the order' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 export const getOrderItems = async (req, res) => {
@@ -45,7 +45,7 @@ export const getOrderItems = async (req, res) => {
     }
     res.status(200).json(order.items);
   } catch (err) {
-    res.status(500).json({ error: 'Error to get the items' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }
 
@@ -59,6 +59,6 @@ export const updateStatus = async (req, res) => {
     }
     res.status(200).json(updatedOrder);
   } catch (err) {
-    res.status(500).json({ error: 'Error when updating the status' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 }

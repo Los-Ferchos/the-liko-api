@@ -1,30 +1,5 @@
 import Order from "../../models/Order";
 
-export const getOrders = async (req, res) => {
-    try {
-      const userId = req.params.userId;
-      const orders = await Order.find({ userId }).populate('items');
-  
-      if (!orders) {
-        return res.status(404).json({ error: 'Orders not found for the specified user' });
-      }
-  
-      const ordersInfo = orders.map((order) => {
-        const { _id, items } = order;
-  
-        return {
-          order: _id,
-          items,
-          productInfo: order.productId
-        };
-      });
-
-      res.status(200).json(ordersInfo);
-    } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
-    }
-};
-
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find();
