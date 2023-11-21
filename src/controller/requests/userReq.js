@@ -199,7 +199,6 @@ const uploadUserToRegister = async (username, email, password) => {
       const result = await userToRegister.save();
       if(result._id){
         sendVerificationEmail(email, verificationCode);
-        console.log("Email sent");
         return token;
       }
     }catch (error) {
@@ -251,7 +250,6 @@ export const confirmRegister = async (req, res) => {
     if (userToRegister) {
       if (userToRegister.codeVerification === codeVerification) {
         const user = await registerUser(userToRegister.username, userToRegister.email, userToRegister.password);
-        console.log("user registered");
         res.status(201).json({ userId: user._id });
       } else {
         res.status(200).json({ message: "Invalid verification code" });

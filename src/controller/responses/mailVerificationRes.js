@@ -32,9 +32,9 @@ const sendEmail = (to, verificationCode) => {
   
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error('Error al enviar el correo electrónico:', error);
+        console.error('Error sending email:', error);
       } else {
-        console.log('Correo electrónico enviado:', info.response);
+        console.log('Email send:', info.response);
       }
     });
   };
