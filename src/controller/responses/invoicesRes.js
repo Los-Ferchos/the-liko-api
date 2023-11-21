@@ -16,7 +16,7 @@ authUrl.setCredentials({ refresh_token: REFRESH_TOKEN})
 const accessToken = authUrl.getAccessToken();
 
 export const sendInvoice = async (req, res) => {
-    const { nit, name, cartItems, totalCost, userId } = req.body;
+    const { nit, name, cartItems, totalCost, totalCostCurrency = "BOB", userId } = req.body;
 
     const invoiceNumber = generateInvoiceNumber();
   
@@ -46,7 +46,7 @@ export const sendInvoice = async (req, res) => {
       from: 'thelikoecommerce@gmail.com',
       to: user.email,
       subject: 'The Liko - Invoice',
-      html: getHTMLInvoice(invoiceNumber, formattedDate, totalCost, nit, name, cartItems, "BOB"),
+      html: getHTMLInvoice(invoiceNumber, formattedDate, totalCost, nit, name, cartItems, totalCostCurrency),
     };
   
     transporter.sendMail(mailOptions, (error, info) => {
