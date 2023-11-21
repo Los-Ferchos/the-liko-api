@@ -1,34 +1,61 @@
 import Order from "../../models/Order";
 
-export const getAllOrders = async (req, res) => {
+export const getOrders = async (req, res) => {
     try {
       const userId = req.params.userId;
-      const cartItems = await CartItem.find({ userId }).populate('productId');
+      const orders = await Order.find({ userId }).populate('items');
   
-      if (!cartItems) {
-        return res.status(404).json({ error: 'Cart not found for the specified user' });
+      if (!orders) {
+        return res.status(404).json({ error: 'Orders not found for the specified user' });
       }
   
-      const cartItemsWithProductInfo = cartItems.map((cartItem) => {
-        const { _id, quantity } = cartItem;
+      const ordersInfo = orders.map((order) => {
+        const { _id, items } = order;
   
         return {
-          cartItemId: _id,
-          quantity,
-          productInfo: cartItem.productId
+          order: _id,
+          items,
+          productInfo: order.productId
         };
       });
-  
-      res.status(200).json(cartItemsWithProductInfo);
+
+      res.status(200).json(ordersInfo);
     } catch (error) {
       res.status(500).json({ error: 'Internal server error' });
     }
 };
 
-export const getOrderById = async (req, res) => {
-    
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
-export const getOrderByUserId = async (req, res) => {
-    
+export const getOrderById = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+      const order = await Order.findById(orderId);
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+    res.status(200).json(order);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getOrdersByUserId = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+      const orders = await Order.find({ userId });
+      if (orders.length === 0) {
+        return res.status(404).json({ message: 'Orders not found for this user' });
+      }
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
