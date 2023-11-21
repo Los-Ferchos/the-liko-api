@@ -35,7 +35,6 @@ const userToRegisterSchema = new Schema({
 { timestamps: true }
 );
 
-// Configuración del índice TTL en el campo "expirationDate"
 userToRegisterSchema.index({ "expirationDate": 1 }, { expireAfterSeconds: 0 });
 
 const UserToRegister = model('UserToRegister', userToRegisterSchema);
