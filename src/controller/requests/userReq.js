@@ -57,7 +57,7 @@ const decryptPassword = (user, req, res) => {
   if (storedPassword !== req.body.password) {
     res.status(401).json({ message: 'Wrong Password' });
   } else {
-    res.status(200).json({ userId: user._id });
+    res.status(200).json({ userId: user._id, isAdmin: user.isAdmin });
   }
 }
 
@@ -277,6 +277,7 @@ const registerUser = async (username, email,password) => {
       password,
       process.env.PSWD_DECRYPT_CODE
     ).toString(),
+    isAdmin: false
   });
 
   try {
