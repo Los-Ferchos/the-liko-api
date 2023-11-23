@@ -77,14 +77,13 @@ export const processPayment = async (req, res) => {
  * @throws {Error} Throws an error with a message and a 400 status code if any of the fields are empty or if the `deliberyAddress` or `nit` fields have less than 10 characters.
  */
 export const validateUserInformation = async (req, res) => {
-  const { FirstName, LastName, telephone, deliberyAddress, nit } = req.body;
-
-  if (!FirstName.trim() || !LastName.trim() || !telephone.trim() || !deliberyAddress.trim() || !nit.trim()) {
+  const { FirstName, LastName, telephone, deliveryAddress, nit } = req.body;
+  if (!FirstName.trim() || !LastName.trim() || !telephone.trim() || !deliveryAddress.trim() || !nit.trim()) {
     res.status(400).json({ error: 'All fields must be filled in correctly' });
     return;
   }
 
-  if (deliberyAddress.length < 10 ) {
+  if (deliveryAddress.length < 10 ) {
     res.status(400).json({ error: 'All fields must be filled in correctly' });
     return;
   }
