@@ -53,3 +53,23 @@ export const deleteProductById = async (req, res) => {
       res.status(400).json({ error: error.message });
     }
 }
+
+/**
+ * Update the availability of the product by ID.
+ * 
+ * @param {*} req- The request object.
+ * @param {*} res - The response object.
+ */
+export const updateAvailability = async (req, res) => {
+  try {
+    const { productId } = req.params.id;
+    const { availability } = req.body;
+    const updateAvailability = await Product.findByIdAndUpdate(productId, { availability }, { new: false });
+    if (!updateAvailability) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.status(200).json(updateAvailability);
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}

@@ -65,7 +65,11 @@ const productSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Combo'
       }
-    ]
+    ],
+    availability: {
+      type: Boolean,
+      default: true
+    }
 });
   
 const Product = model('Product', productSchema);
