@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getAllProducts, getAllProductsByCategory, getAllProductsByCategoryAndSubcategory, getAllProductsBySubcategory, getProductById } from '../controller/responses/productsRes.js';
-import { deleteProductById, editProductById, saveNewProduct } from '../controller/requests/productReq.js';
+import { deleteProductById, editProductById, saveNewProduct, updateAvailability } from '../controller/requests/productReq.js';
 
 const productRouter = Router();
 
@@ -19,5 +19,7 @@ productRouter.post('/products', saveNewProduct);
 productRouter.put('/products/:id', editProductById);
 
 productRouter.delete('/products/:id', deleteProductById);
+
+productRouter.patch('/products/:id', updateAvailability)
 
 export default productRouter;

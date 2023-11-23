@@ -26,9 +26,12 @@ export const getOrderById = async (req, res) => {
 export const getOrdersByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const { page = 1, limit = 1 } = req.query;
+    const { page = 1, limit = 20 } = req.query;
 
-    const orders = await Order.find({ userId }).limit(limit);
+    const orders = await Order.find({ userId }).populate({
+        path: 'items.productId',
+        model: 'Product',
+      }).limit(limit);
     if (orders.length === 0) {
       return res.status(404).json({ message: 'Orders not found for this user' });
     }
