@@ -3,9 +3,9 @@ import { getHTMLInvoice } from "../methods/getHTMLInvoice.js";
 import nodemailer from 'nodemailer';
 import User from "../../models/User.js";
 
-const CLIENT_ID = '689024350629-26q1vf3a7mbmek5ump7mtnks152kgvhm.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REFRESH_TOKEN = "1//04j8NNgW7E2lxCgYIARAAGAQSNwF-L9IrzEH6kwTRML5H4oKxp5Q7aez1XshoBV8PT5YAXruTBT_re_l-HKsQCsgioYNCpZsC04E";
+const CLIENT_ID = '689024350629-hoibo37qfivbkub11q5e8d9me53qu7ml.apps.googleusercontent.com';
+const CLIENT_SECRET = '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';
+const REFRESH_TOKEN = "1//04CjMunBdND2ACgYIARAAGAQSNwF-L9IrYYXhg1OSAlpQjqBQ3kwoNPHwNWXwshJOX1vWXggxBWTN3q80WCnUM-xf2Ahh3V9HqAk";
 
 const authUrl = new OAuth2Client({
   clientId: CLIENT_ID,
