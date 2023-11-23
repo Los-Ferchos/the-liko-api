@@ -1,4 +1,5 @@
 import Order from "../../models/Order.js";
+import { generatePagination } from "../methods/methods.js";
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -25,11 +26,15 @@ export const getOrderById = async (req, res) => {
 export const getOrdersByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;
-      const orders = await Order.find({ userId });
-      if (orders.length === 0) {
-        return res.status(404).json({ message: 'Orders not found for this user' });
-      }
-    res.status(200).json(orders);
+    const { page = 1, limit = 1 } = req.query;
+
+    const orders = await Order.find({ userId }).limit(limit);
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'Orders not found for this user' });
+    }
+    const totalProductsCount = await Order.countDocuments({ userId });
+    const pagination = generatePagination(page, limit, totalProductsCount);
+    res.status(200).json({ orders, pagination });
   } catch (error) {
     res.status(500).json({ error: 'Internal server error' });
   }
