@@ -1,3 +1,4 @@
+import { fetchExchangeRates } from '../controller/requests/exchangeRatesReq.js';
 import { connectToDatabase } from '../database/connection.js';
 import serverApp from './settings.js';
 
@@ -13,4 +14,6 @@ export const startServer = async () => {
 			console.log(`server on port ${port}`);
 		});
 	}
+
+	await fetchExchangeRates();
 };
