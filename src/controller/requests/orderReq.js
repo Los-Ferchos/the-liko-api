@@ -1,14 +1,56 @@
 import Order from "../../models/Order.js"
+import Product from "../../models/Product.js"
 
 export const addNewOrder = async (req, res) => {
   try {
     const newOrderData = req.body;
+    console.log(newOrderData);
+    await decrementStock(newOrderData.items);
+    await incrementSells(newOrderData.items);
+    console.log('Operations succesfully completed');
     const newOrder = await Order.create(newOrderData);
     res.status(201).json(newOrder);
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+
+/**
+ * Decrements the stock quantity of products based on the order items.
+ * @param {Array} orderItems - The array of order items.
+ * @returns {Promise<void>} - A promise that resolves when the stock is decremented successfully.
+ */
+const decrementStock = async (orderItems) => {
+  try {
+    for (const item of orderItems) {
+      const productId = item.productId;
+      const product = await Product.findById(productId);
+      product.quantity -= item.quantity;
+      await product.save();
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+/**
+ * Increments the sells of products based on the order items.
+ * @param {Array} orderItems - The array of order items.
+ * @returns {Promise<void>} - A promise that resolves when the sells are incremented.
+ */
+const incrementSells = async (orderItems) => {
+  try {
+    for (const item of orderItems) {
+      const productId = item.productId;
+      const product = await Product.findById(productId);
+      product.sells += item.quantity;
+      await product.save();
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 
 export const editOrder = async (req, res) => {
   try {
