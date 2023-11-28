@@ -36,7 +36,7 @@ export const getAllProducts = async (req, res) => {
     const sortWay = getSortTypeField(sort);
     const filters = getFiltersQuery(ft1, ft2, ft3);
 
-    let query = {};
+    let query = { deleted: false };
     query.quantity =  {$gte: 1};
 
     if (search) {
@@ -88,7 +88,7 @@ export const getAllAvailableProducts = async (req, res) => {
     const sortWay = getSortTypeField(sort);
     const filters = getFiltersQuery(ft1, ft2, ft3);
 
-    let query = { availability: true };
+    let query = { availability: true, deleted: false };
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -105,6 +105,7 @@ export const getAllAvailableProducts = async (req, res) => {
       $and: [
         { name: { $regex: new RegExp(search, 'i') } },
         { availability: true },
+        { deleted: false }
       ]
     })
       .sort({ sells: -1 })
@@ -146,7 +147,7 @@ export const getAllProductsByCategory = async (req, res) => {
       filters[filters.length] = { category: categoryId }
     }
 
-    let query = { availability: true };
+    let query = { availability: true, deleted: false };
     query.quantity =  {$gte: 1};
 
     if (search) {
@@ -200,7 +201,7 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
       filters[filters.length] = { category: categoryId, subcategory: subcategoryId }
     }
 
-    let query = { availability: true };
+    let query = { availability: true, deleted: false };
     query.quantity =  {$gte: 1};
 
     if (search) {
@@ -253,7 +254,7 @@ export const getAllProductsBySubcategory = async (req, res) => {
       filters[filters.length] = { subcategory: subcategoryId }
     }
 
-    let query = { availability: true};
+    let query = { availability: true, deleted: false };
     query.quantity =  {$gte: 1};
 
     if (search) {

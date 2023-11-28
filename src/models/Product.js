@@ -69,6 +69,10 @@ const productSchema = new Schema({
     availability: {
       type: Boolean,
       default: true
+    },
+    deleted: {
+      type: Boolean,
+      default: false
     }
 });
   
