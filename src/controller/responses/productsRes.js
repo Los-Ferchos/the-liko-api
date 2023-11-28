@@ -1,5 +1,5 @@
 import Product from "../../models/Product.js";
-import { convertToCurrency } from "../methods/changeCurrency.js";
+import { convertToCurrency, getProductsWithNewCurrency } from "../methods/changeCurrency.js";
 import { getFiltersQuery } from "../methods/filter.js";
 import { generatePagination } from "../methods/paginate.js";
 import { getSortTypeField } from "../methods/sort.js";
@@ -59,16 +59,11 @@ export const getAllProducts = async (request, response) => {
       .sort({ sells: -1 })
       .limit(5);
 
-    const productsWithConvertedPrices = products.map(product => {
-      const convertedPrice = convertToCurrency(product.price.value, product.price.currency, newCurrency);
-      return { ...product._doc, price: { ...product._doc.price, value: convertedPrice, currency: newCurrency } };
-    });
-
     const totalProductsCount = await Product.countDocuments(query);
     const pagination = generatePagination(page, limit, totalProductsCount);
 
     response.status(200).json({
-      products: productsWithConvertedPrices,
+      products: getProductsWithNewCurrency(products, newCurrency),
       topSellingProducts,
       pagination
     });
@@ -86,7 +81,9 @@ export const getAllProducts = async (request, response) => {
  * @param {*} response - The response object.
 */
 export const getAllProductsByCategory = async (request, response) => {
-  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = request.query;
+  const { 
+    page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD"
+  } = request.query;
   const { categoryId } = request.params;
 
   try {
@@ -123,7 +120,7 @@ export const getAllProductsByCategory = async (request, response) => {
     const pagination = generatePagination(page, limit, totalProductsCount);
 
     response.status(200).json({
-      products,
+      products: getProductsWithNewCurrency(products, newCurrency),
       topSellingProducts,
       pagination
 
@@ -140,7 +137,9 @@ export const getAllProductsByCategory = async (request, response) => {
  * @param {*} response - The response object.
 */
 export const getAllProductsByCategoryAndSubcategory = async (request, response) => {
-  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = request.query;
+  const { 
+    page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD"
+  } = request.query;
   const { categoryId, subcategoryId } = request.params;
 
   try {
@@ -175,7 +174,7 @@ export const getAllProductsByCategoryAndSubcategory = async (request, response) 
     const pagination = generatePagination(page, limit, totalProductsCount);
 
     response.status(200).json({
-      products,
+      products: getProductsWithNewCurrency(products, newCurrency),
       topSellingProducts,
       pagination
     });
@@ -191,7 +190,9 @@ export const getAllProductsByCategoryAndSubcategory = async (request, response) 
  * @param {*} response - The response object.
 */
 export const getAllProductsBySubcategory = async (request, response) => {
-  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = request.query;
+  const { 
+    page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD" 
+  } = request.query;
   const { subcategoryId } = request.params;
 
   try {
@@ -225,7 +226,7 @@ export const getAllProductsBySubcategory = async (request, response) => {
     const pagination = generatePagination(page, limit, totalProductsCount);
 
     response.status(200).json({
-      products,
+      products: getProductsWithNewCurrency(products, newCurrency),
       topSellingProducts,
       pagination
     });

@@ -11,4 +11,12 @@ import { getExchangeRates } from "../requests/exchangeRatesReq.js";
 export const convertToCurrency = (priceInCurrency, currentCurrency, newCurrency) => {
     return (getExchangeRates()[newCurrency] / getExchangeRates()[currentCurrency]) * priceInCurrency;
 }
+
+export const getProductsWithNewCurrency = (products, newCurrency) => {
+    const productsWithConvertedPrices = products.map(product => {
+        const convertedPrice = convertToCurrency(product.price.value, product.price.currency, newCurrency);
+        return { ...product._doc, price: { ...product._doc.price, value: convertedPrice, currency: newCurrency } };
+      });
+    return productsWithConvertedPrices
+}
   
