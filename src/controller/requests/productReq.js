@@ -85,7 +85,6 @@ export const updateAvailability = async (req, res) => {
  */
 export const modifyRatingProduct = async (req, res) => {
   const { tokenUser, productId, rating, decrease} = req.body;
-  console.log(req.body)
   try{
     const userExist = await validateUserExist(tokenUser);
     if(!userExist){
@@ -211,11 +210,8 @@ const validateRating = (rating) => {
  * @returns {Promise<void>} - A promise that resolves when the rating detail is created.
  */
 const createRatingDetail = async (productId) => {
-  console.log("createRatingDetail")
-  console.log(productId)
   const response = await RatingDetail.findOne({productId: productId});
   if(!response){
-    console.log("createRatingDetail2")
     const newRatingDetail = new RatingDetail({
       productId: productId,
       rating_1: 0,
@@ -225,7 +221,6 @@ const createRatingDetail = async (productId) => {
       rating_5: 0,
       totalRating: 0
     });
-    console.log(newRatingDetail);
     await newRatingDetail.save();
   }
 }
@@ -242,7 +237,6 @@ const updateTotalRatingToProduct = async (productId, totalRating) => {
     response.rating = totalRating;
     await response.save();
   }catch(error){
-    console.log(error); 
     return false;
   }
 }
