@@ -1,5 +1,5 @@
 import Order from "../../models/Order.js";
-import { generatePagination } from "../methods/methods.js";
+import { generatePagination } from "../methods/paginate.js";
 
 export const getAllOrders = async (req, res) => {
   try {
