@@ -24,10 +24,6 @@ export const addToWishlist = async (req, res) => {
             return res.status(400).json({ message: 'Too many parameters in the request' });
         }
 
-        if (error) {
-            return res.status(500).json({ error });
-        }
-
         let wishlist = await Wishlist.findOne({ userId });
 
         if (!wishlist) {
@@ -111,7 +107,6 @@ export const addMultipleToWishlist = async (req, res) => {
         }
 
         const { updatedWishlistItems, failedToAdd } = await processWishlistItems(userId, wishlistItems);
-
         const response = {
             updatedWishlistItems,
             failedToAdd,
@@ -133,7 +128,6 @@ export const addMultipleToWishlist = async (req, res) => {
 const processWishlistItems = async (userId, wishlistItems) => {
     const failedToAdd = [];
     const updatedWishlistItems = [];
-
     const userExists = await doesUserExistById(userId);
 
     if (!userExists) {
