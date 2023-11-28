@@ -47,7 +47,6 @@ export const getAllProducts = async (request, response) => {
     const filters = getFiltersQuery(ft1, ft2, ft3);
 
     let query = { deleted: false };
-    query.quantity =  {$gte: 1};
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -98,6 +97,7 @@ export const getAllAvailableProducts = async (req, res) => {
     const filters = getFiltersQuery(ft1, ft2, ft3);
 
     let query = { availability: true, deleted: false };
+    query.quantity =  {$gte: 1};
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
