@@ -251,6 +251,12 @@ export const getAllRatingsDetail = async (req, res) => {
   }
 }
 
+/**
+ * Verifies if a product has been purchased by a user.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the verification is complete.
+ */
 export const verifyProductPurchased = async (req, res) => {
   const userId = req.params.userId;
   const productId = req.params.productId;

@@ -1,7 +1,5 @@
-import e from 'express';
 import Product from '../../models/Product.js';
 import RatingDetail from '../../models/RatingDetail.js';
-import User from '../../models/User.js';
 import { doesProductExistById , validateUserExist} from '../methods/validations.js';
 /**
  * Saves a new Product.
@@ -155,6 +153,12 @@ export const getRatingDetail = async (req, res) => {
   }
 }
 
+/**
+ * Modifies the rating of a product.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the rating is modified successfully.
+ */
 export const modifyRatingProduct = async (req, res) => {
     const {tokenUser, productId, rating} = req.body;
     try {
@@ -202,8 +206,15 @@ export const modifyRatingProduct = async (req, res) => {
       }
 
       const totalRatings = updatedRating.rating_1 + updatedRating.rating_2 + updatedRating.rating_3 + updatedRating.rating_4 + updatedRating.rating_5;
-      const totalRating = parseFloat(((updatedRating.rating_1  + updatedRating.rating_2 * 2 + updatedRating.rating_3  * 3 + updatedRating.rating_4 * 4 + updatedRating.rating_5 * 5) / totalRatings).toFixed(1));
-      updatedRating.totalRating = totalRating;
+      let totalRating = 0;
+      if(totalRatings === 0){
+        updatedRating.totalRating = 0;
+      }
+      else{
+        totalRating = parseFloat(((updatedRating.rating_1  + updatedRating.rating_2 * 2 + updatedRating.rating_3  * 3 + updatedRating.rating_4 * 4 + updatedRating.rating_5 * 5) / totalRatings).toFixed(1));
+        updatedRating.totalRating = totalRating;
+      }
+      
       await updatedRating.save();
       updateTotalRatingToProduct(productId, totalRating);
 
@@ -232,8 +243,11 @@ const validateRating = (rating) => {
  * @returns {Promise<void>} - A promise that resolves when the rating detail is created.
  */
 const createRatingDetail = async (productId) => {
+  console.log("createRatingDetail")
+  console.log(productId)
   const response = await RatingDetail.findOne({productId: productId});
   if(!response){
+    console.log("createRatingDetail2")
     const newRatingDetail = new RatingDetail({
       productId: productId,
       rating_1: 0,
@@ -243,6 +257,7 @@ const createRatingDetail = async (productId) => {
       rating_5: 0,
       totalRating: 0
     });
+    console.log(newRatingDetail);
     await newRatingDetail.save();
   }
 }
