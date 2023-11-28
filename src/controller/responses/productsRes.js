@@ -37,6 +37,7 @@ export const getAllProducts = async (req, res) => {
     const filters = getFiltersQuery(ft1, ft2, ft3);
 
     let query = {};
+    query.quantity =  {$gte: 1};
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -94,6 +95,7 @@ export const getAllProductsByCategory = async (req, res) => {
     }
 
     let query = {};
+    query.quantity =  {$gte: 1};
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -147,6 +149,7 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
     }
 
     let query = {};
+    query.quantity =  {$gte: 1};
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -199,6 +202,7 @@ export const getAllProductsBySubcategory = async (req, res) => {
     }
 
     let query = {};
+    query.quantity =  {$gte: 1};
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
