@@ -1,3 +1,4 @@
+import { scheduleJob } from 'node-schedule';
 import { fetchExchangeRates } from '../controller/requests/exchangeRatesReq.js';
 import { connectToDatabase } from '../database/connection.js';
 import serverApp from './settings.js';
@@ -17,3 +18,11 @@ export const startServer = async () => {
 
 	await fetchExchangeRates();
 };
+
+/**
+ * Schedule the task to fetch exchange rates daily at midnight
+ */
+scheduleJob('0 0 * * *', async () => {
+  console.log('Fetching exchange rates...');
+  await fetchExchangeRates();
+});
