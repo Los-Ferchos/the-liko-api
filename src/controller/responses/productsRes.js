@@ -1,8 +1,8 @@
 import Product from "../../models/Product.js";
+import { convertToCurrency } from "../methods/changeCurrency.js";
 import { getFiltersQuery } from "../methods/filter.js";
 import { generatePagination } from "../methods/paginate.js";
 import { getSortTypeField } from "../methods/sort.js";
-import { getExchangeRates } from "../requests/exchangeRatesReq.js";
 
 /**
  * Gets an product by its ID as a JSON response.
@@ -26,13 +26,13 @@ export const getProductById = async (request, response) => {
 /**
  * Gets a list of products as a JSON response using pagination.
 
- * @param {*} req - The request object.
- * @param {*} res - The response object.
+ * @param {*} request - The request object.
+ * @param {*} response - The response object.
 */
-export const getAllProducts = async (req, res) => {
+export const getAllProducts = async (request, response) => {
   const { 
     page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD"
-  } = req.query;
+  } = request.query;
   try {
     const startIndex = (page - 1) * limit;
     const sortWay = getSortTypeField(sort);
@@ -60,40 +60,34 @@ export const getAllProducts = async (req, res) => {
       .limit(5);
 
     const productsWithConvertedPrices = products.map(product => {
-      const convertedPrice = convertToBob(product.price.value, product.price.currency, newCurrency);
-      return { ...product._doc, price: { ...product._doc.price, value: convertedPrice.toFixed(2), currency: newCurrency } };
+      const convertedPrice = convertToCurrency(product.price.value, product.price.currency, newCurrency);
+      return { ...product._doc, price: { ...product._doc.price, value: convertedPrice, currency: newCurrency } };
     });
-
 
     const totalProductsCount = await Product.countDocuments(query);
     const pagination = generatePagination(page, limit, totalProductsCount);
 
-    res.status(200).json({
+    response.status(200).json({
       products: productsWithConvertedPrices,
       topSellingProducts,
       pagination
     });
   } catch (error) {
-    res.status(500).json({
+    response.status(500).json({
       error: error.message,
     });
   }
 }
 
-// Helper function to convert currency to BOB
-function convertToBob(priceInCurrency, currentCurrency, newCurrency) {
-  return (getExchangeRates()[newCurrency] / getExchangeRates()[currentCurrency]) * priceInCurrency;
-}
-
 /**
  * Gets a list of products as a JSON response using pagination by category.
 
- * @param {*} req - The request object.
- * @param {*} res - The response object.
+ * @param {*} request - The request object.
+ * @param {*} response - The response object.
 */
-export const getAllProductsByCategory = async (req, res) => {
-  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = req.query;
-  const { categoryId } = req.params;
+export const getAllProductsByCategory = async (request, response) => {
+  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = request.query;
+  const { categoryId } = request.params;
 
   try {
     const startIndex = (page - 1) * limit;
@@ -119,33 +113,35 @@ export const getAllProductsByCategory = async (req, res) => {
       .limit(5);
 
 
-    const products = await Product.find(filters.length > 0 ? { $and: filters, ...query } : { category: categoryId, ...query }).skip(startIndex).limit(limit)
+    const products = await Product.find(
+      filters.length > 0 ? { $and: filters, ...query } : { category: categoryId, ...query }
+    ).skip(startIndex).limit(limit)
       .sort({
         [sortWay]: (sort >= 0 ? 1 : -1)
       });
     const totalProductsCount = await Product.countDocuments({ category: categoryId, ...query });
     const pagination = generatePagination(page, limit, totalProductsCount);
 
-    res.status(200).json({
+    response.status(200).json({
       products,
       topSellingProducts,
       pagination
 
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    response.status(500).json({ error: error.message });
   }
 }
 
 /**
  * Gets a list of products as a JSON response using pagination by category and subcategory.
 
- * @param {*} req - The request object.
- * @param {*} res - The response object.
+ * @param {*} request - The request object.
+ * @param {*} response - The response object.
 */
-export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
-  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = req.query;
-  const { categoryId, subcategoryId } = req.params;
+export const getAllProductsByCategoryAndSubcategory = async (request, response) => {
+  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = request.query;
+  const { categoryId, subcategoryId } = request.params;
 
   try {
     const startIndex = (page - 1) * limit;
@@ -178,25 +174,25 @@ export const getAllProductsByCategoryAndSubcategory = async (req, res) => {
     const totalProductsCount = await Product.countDocuments({ category: categoryId, subcategory: subcategoryId, ...query });
     const pagination = generatePagination(page, limit, totalProductsCount);
 
-    res.status(200).json({
+    response.status(200).json({
       products,
       topSellingProducts,
       pagination
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    response.status(500).json({ error: error.message });
   }
 };
 
 /**
  * Gets a list of products as a JSON response using pagination by subcategory.
 
- * @param {*} req - The request object.
- * @param {*} res - The response object.
+ * @param {*} request - The request object.
+ * @param {*} response - The response object.
 */
-export const getAllProductsBySubcategory = async (req, res) => {
-  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = req.query;
-  const { subcategoryId } = req.params;
+export const getAllProductsBySubcategory = async (request, response) => {
+  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = request.query;
+  const { subcategoryId } = request.params;
 
   try {
     const startIndex = (page - 1) * limit;
@@ -228,12 +224,12 @@ export const getAllProductsBySubcategory = async (req, res) => {
 
     const pagination = generatePagination(page, limit, totalProductsCount);
 
-    res.status(200).json({
+    response.status(200).json({
       products,
       topSellingProducts,
       pagination
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    response.status(500).json({ error: error.message });
   }
 };
