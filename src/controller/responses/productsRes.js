@@ -11,12 +11,20 @@ import { getSortTypeField } from "../methods/sort.js";
  * @param {*} response - The response object.
  */
 export const getProductById = async (request, response) => {
+  const { newCurrency = "USD" } = request.query;
+
   try {
     const product = await Product.findById(request.params.id);
     if (!product) {
       response.status(404).json({ error: 'Product not found' });
     } else {
-      response.status(200).json(product);
+      response.status(200).json(
+        {...product._doc, price: { 
+            value: convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency),
+            currency: newCurrency
+          }
+        },
+      );
     }
   } catch (error) {
     response.status(500).json({ error: 'Internal Server Error' });
