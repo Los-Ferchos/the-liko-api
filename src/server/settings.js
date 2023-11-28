@@ -10,6 +10,7 @@ import subcategoriesRouter from '../routes/subcategories.routes.js';
 import userRouter from '../routes/user.routes.js';
 import checkoutRouter from '../routes/checkout.routes.js';
 import cartItemsRouter from '../routes/cartItem.routes.js';
+import wishlistRouter from '../routes/wishlist.routes.js';
 import invoiceRouter from '../routes/invoice.routes.js';
 import orderRouter from '../routes/order.routes.js';
 
@@ -26,6 +27,7 @@ serverApp.use(subcategoriesRouter);
 serverApp.use(userRouter);
 serverApp.use(checkoutRouter);
 serverApp.use(cartItemsRouter);
+serverApp.use(wishlistRouter);
 serverApp.use(invoiceRouter);
 serverApp.use(orderRouter);
 serverApp.use(routeNotFound);
