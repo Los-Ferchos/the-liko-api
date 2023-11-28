@@ -2,6 +2,9 @@ import Product from "../../models/Product.js";
 import { getFiltersQuery } from "../methods/filter.js";
 import { generatePagination } from "../methods/methods.js";
 import { getSortTypeField } from "../methods/sort.js";
+import RatingDetail from "../../models/RatingDetail.js";
+import { doesProductExistById , validateUserExist} from "../methods/validations.js";
+import Order from "../../models/Order.js"
 
 /**
  * Gets an product by its ID as a JSON response.
@@ -232,3 +235,47 @@ export const getAllProductsBySubcategory = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+/**
+ * Retrieves all rating details.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the rating details or an error.
+ */
+export const getAllRatingsDetail = async (req, res) => {
+  try {
+    const ratingDetail = await RatingDetail.find();
+    res.status(200).json(ratingDetail);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+export const verifyProductPurchased = async (req, res) => {
+  const userId = req.params.userId;
+  const productId = req.params.productId;
+  try {
+    const userExist = await validateUserExist(userId);
+    if (!userExist) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+    const producExist = await doesProductExistById(productId);
+    if(!producExist){
+      return res.status(400).json({ error: 'Product not found' });
+    }
+
+    const orders = await Order.find({ userId: userId, status: 'delivered' });
+    let purchased = false;
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        if (item.productId == productId) {
+          purchased = true;
+        }
+      });
+    });
+
+    res.status(200).json({ purchased: purchased });
+  }catch(error){
+    res.status(500).json({ error: error.message });
+  }
+}

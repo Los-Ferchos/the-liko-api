@@ -91,3 +91,18 @@ export const checkProductExistsAndGetQuantity = async (productId) => {
         return { exists: false, quantity: 0 };
     }
 };
+
+/**
+ * Validates if a user exists in the database.
+ * @param {string} userId - The ID of the user to validate.
+ * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the user exists or not.
+ */
+export const validateUserExist = async (userId) => {
+    try {
+      const user = await User.findById(userId);
+      return !!user;
+    } catch (error) {
+      return false;
+    }
+  }
+  
