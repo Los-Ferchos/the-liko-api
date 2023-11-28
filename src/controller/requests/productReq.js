@@ -83,8 +83,8 @@ export const updateAvailability = async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - A promise that resolves when the rating is saved successfully.
  */
-export const saveRatingProduct = async (req, res) => {
-  const { tokenUser, productId, rating} = req.body;
+export const modifyRatingProduct = async (req, res) => {
+  const { tokenUser, productId, rating, decrease} = req.body;
   console.log(req.body)
   try{
     const userExist = await validateUserExist(tokenUser);
@@ -106,25 +106,65 @@ export const saveRatingProduct = async (req, res) => {
 
     switch(rating){
       case 1:
-        response.rating_1 += 1;
+        if(decrease){
+          if(response.rating_1 > 0){
+            response.rating_1 -= 1;
+          }
+        }else{
+          response.rating_1 += 1;
+        }
         break;
       case 2:
-        response.rating_2 += 1;
+        if(decrease){
+          if(response.rating_2 > 0){
+            response.rating_2 -= 1;
+          }
+        }else{
+          response.rating_2 += 1;
+        }
         break;
       case 3:
-        response.rating_3 += 1;
+        if(decrease){
+          if(response.rating_3 > 0){
+            response.rating_3 -= 1;
+          }
+        }else{
+          response.rating_3 += 1;
+        }
         break;
       case 4:
-        response.rating_4 += 1;
+        if(decrease){
+          if(response.rating_4 > 0){
+            response.rating_4 -= 1;
+          }
+        }else{
+          response.rating_4 += 1;
+        }
         break;
       case 5:
-        response.rating_5 += 1;
+        if(decrease){
+          if(response.rating_5 > 0){
+            response.rating_5 -= 1;
+          }
+        }else{
+          response.rating_5 += 1;
+        }
         break;
     }
 
+   
+
     const totalRatings = response.rating_1 + response.rating_2 + response.rating_3 + response.rating_4 + response.rating_5;
-    const totalRating = parseFloat(((response.rating_1  + response.rating_2 * 2 + response.rating_3  * 3 + response.rating_4 * 4 + response.rating_5 * 5) / totalRatings).toFixed(1));
-    response.totalRating = totalRating;
+   
+    let totalRating = 0;
+      if(totalRatings === 0){
+        response.totalRating = 0;
+      }
+      else{
+        totalRating = parseFloat(((response.rating_1  + response.rating_2 * 2 + response.rating_3  * 3 + response.rating_4 * 4 + response.rating_5 * 5) / totalRatings).toFixed(1));
+        response.totalRating = totalRating;
+      }
+      
     await response.save();
     updateTotalRatingToProduct(productId, totalRating);
     res.status(200).json({ message: 'Rating saved successfully' });
@@ -152,78 +192,6 @@ export const getRatingDetail = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 }
-
-/**
- * Modifies the rating of a product.
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @returns {Promise<void>} - A promise that resolves when the rating is modified successfully.
- */
-export const modifyRatingProduct = async (req, res) => {
-    const {tokenUser, productId, rating} = req.body;
-    try {
-      const userExist = await validateUserExist(tokenUser);
-      if (!userExist) {
-        return res.status(400).json({ error: 'User not found' });
-      }
-      const producExist = await doesProductExistById(productId);
-      if(!producExist){
-        return res.status(400).json({ error: 'Product not found' });
-      }
-      if(!validateRating(rating)){
-        return res.status(400).json({ error: 'Rating invalid' });
-      }
-      const updatedRating = await RatingDetail.findOne({productId: productId});
-      if (!updatedRating) {
-        return res.status(404).json({ error: 'Rating not found' });
-      }
-      switch(rating){
-        case 1:
-          if(updatedRating.rating_1 > 0){
-            updatedRating.rating_1 -= 1;
-          }
-          break;
-        case 2:
-          if(updatedRating.rating_2 > 0){
-            updatedRating.rating_2 -= 1;
-          }
-          break;
-        case 3:
-          if(updatedRating.rating_3 > 0){
-            updatedRating.rating_3 -= 1;
-          }
-          break;
-        case 4:
-          if(updatedRating.rating_4 > 0){
-            updatedRating.rating_4 -= 1;
-          }
-          break;
-        case 5:
-          if(updatedRating.rating_5 > 0){
-            updatedRating.rating_5 -= 1;
-          }
-          break;
-      }
-
-      const totalRatings = updatedRating.rating_1 + updatedRating.rating_2 + updatedRating.rating_3 + updatedRating.rating_4 + updatedRating.rating_5;
-      let totalRating = 0;
-      if(totalRatings === 0){
-        updatedRating.totalRating = 0;
-      }
-      else{
-        totalRating = parseFloat(((updatedRating.rating_1  + updatedRating.rating_2 * 2 + updatedRating.rating_3  * 3 + updatedRating.rating_4 * 4 + updatedRating.rating_5 * 5) / totalRatings).toFixed(1));
-        updatedRating.totalRating = totalRating;
-      }
-      
-      await updatedRating.save();
-      updateTotalRatingToProduct(productId, totalRating);
-
-      res.status(200).json({ message: 'Rating modified successfully' });
-    } catch (error) {
-      res.status(400).json({ error: error.message });
-    }
-}
-
 
 /**
  * Validates the rating value.

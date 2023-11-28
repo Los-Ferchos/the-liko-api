@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getAllProducts, getAllProductsByCategory, getAllProductsByCategoryAndSubcategory, getAllProductsBySubcategory, getProductById, getAllRatingsDetail, verifyProductPurchased} from '../controller/responses/productsRes.js';
-import { deleteProductById, editProductById, saveNewProduct, updateAvailability, saveRatingProduct, getRatingDetail, modifyRatingProduct } from '../controller/requests/productReq.js';
+import { deleteProductById, editProductById, saveNewProduct, updateAvailability, getRatingDetail, modifyRatingProduct } from '../controller/requests/productReq.js';
 
 const productRouter = Router();
 
@@ -8,15 +8,13 @@ productRouter.get('/products', getAllProducts);
 
 productRouter.get('/products/:id', getProductById);
 
-productRouter.post('/saveRatingProduct', saveRatingProduct);
-
 productRouter.get('/informationRatingProducts/:id', getRatingDetail);
 
 productRouter.get('/ratingProducts', getAllRatingsDetail);
 
 productRouter.get('/productPurchased/:userId/:productId', verifyProductPurchased);
 
-productRouter.put('/decreaseRatingProduct', modifyRatingProduct);
+productRouter.put('/modifyRatingProduct', modifyRatingProduct);
 
 productRouter.get('/products/category/:categoryId', getAllProductsByCategory);
 
