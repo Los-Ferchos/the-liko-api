@@ -18,6 +18,8 @@ export const getProductById = async (request, response) => {
     
     if (!product) {
       response.status(404).json({ error: 'Product not found' });
+    } else if (!product.availability || product.deleted) {
+      return res.status(403).json({ message: 'Cannot retrieve the product. It is not available or has been deleted.' });
     } else {
       const convertedPrice = convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency);
       
