@@ -1,3 +1,4 @@
+import DrinkMix from "../../models/DrinkMix.js";
 import Product from "../../models/Product.js";
 import { convertToCurrency, getProductsWithNewCurrency } from "../methods/changeCurrency.js";
 import { getFiltersQuery } from "../methods/filter.js";
@@ -8,7 +9,7 @@ import { doesProductExistById , validateUserExist} from "../methods/validations.
 import Order from "../../models/Order.js"
 
 /**
- * Gets an product by its ID as a JSON response.
+ * Gets a product by its ID as a JSON response, with the items or combos array populated.
  *
  * @param {*} request - The request object.
  * @param {*} response - The response object.
@@ -17,22 +18,53 @@ export const getProductById = async (request, response) => {
   const { newCurrency = "USD" } = request.query;
 
   try {
-    const product = await Product.findById(request.params.id);
+    const productId = request.params.id;
+    const product = await Product.findById(productId).populate('items');
+
     if (!product) {
       response.status(404).json({ error: 'Product not found' });
+    } else if (!product.availability || product.deleted) {
+      return res.status(403).json({ message: 'Cannot retrieve the product. It is not available or has been deleted.' });
     } else {
-      response.status(200).json(
-        {...product._doc, price: { 
-            value: convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency),
+      const convertedPrice = convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency);
+
+      let itemsOrCombos = [];
+      let drinkMixes = [];
+
+      if (product._doc.type === 'combo') {
+        itemsOrCombos = product.items.map(item => ({
+          ...item._doc,
+          price: {
+            value: convertToCurrency(item._doc.price.value, item._doc.price.currency, newCurrency),
             currency: newCurrency
-          }
+          },
+        }));
+      } else {
+        itemsOrCombos = await Product.find({
+          type: 'combo',
+          items: { $in: [productId] },
+        }).populate('items');
+
+        drinkMixes = await DrinkMix.find({
+          relatedProducts: { $in: [productId] }
+        });
+      }
+
+      response.status(200).json({
+        ...product._doc,
+        price: {
+          value: convertedPrice,
+          currency: newCurrency
         },
-      );
+        [product._doc.type === 'product' ? 'combos' : 'items']: itemsOrCombos,
+        drinkMixes,
+      });
     }
   } catch (error) {
-    response.status(500).json({ error: 'Internal Server Error' });
+    response.status(500).json({ error: 'Internal Server Error' + error });
   }
 };
+
 
 /**
  * Gets a list of products as a JSON response using pagination.
