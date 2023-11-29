@@ -25,8 +25,16 @@ const decrementStock = async (orderItems) => {
     for (const item of orderItems) {
       const productId = item.productId;
       const product = await Product.findById(productId);
+      if(product.type === 'combo') {
+        for (const comboItem of product.items) {
+          const comboProduct = await Product.findById(comboItem);
+          comboProduct.quantity -= item.quantity;
+          await comboProduct.save();
+        }
+      }
       product.quantity -= item.quantity;
       await product.save();
+      
     }
   } catch (err) {
     console.log(err);
@@ -43,8 +51,17 @@ const incrementSells = async (orderItems) => {
     for (const item of orderItems) {
       const productId = item.productId;
       const product = await Product.findById(productId);
+      if(product.type === 'combo') {
+        for (const comboItem of product.items) {
+          const comboProduct = await Product.findById(comboItem);
+          comboProduct.sells += item.quantity;
+          await comboProduct.save();
+        }
+      }
+
       product.sells += item.quantity;
       await product.save();
+      
     }
   } catch (err) {
     console.log(err);
