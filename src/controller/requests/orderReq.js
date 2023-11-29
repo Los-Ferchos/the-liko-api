@@ -27,6 +27,7 @@ const decrementStock = async (orderItems) => {
       const product = await Product.findById(productId);
       if(product.type === 'combo') {
         for (const comboItem of product.items) {
+          console.log('Combo item: ', comboItem);
           const comboProduct = await Product.findById(comboItem);
           comboProduct.quantity -= item.quantity;
           await comboProduct.save();
