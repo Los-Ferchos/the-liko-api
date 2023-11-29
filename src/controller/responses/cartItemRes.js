@@ -1,4 +1,5 @@
 import CartItem from "../../models/CartItem.js";
+import Product from "../../models/Product.js";
 import { convertToCurrency } from "../methods/changeCurrency.js";
 import { doesProductExistById } from '../methods/validations.js';
 
@@ -31,12 +32,10 @@ export const getCartItems = async (request, response) => {
       }
     }
 
-    // Fetch updated cart items
     const updatedCartItems = await CartItem.find({ userId }).populate('productId');
     const cartItemsWithProductInfo = await Promise.all(updatedCartItems.map(async (cartItem) => {
       const { _id, quantity } = cartItem;
 
-      // Calculate minimum quantity for combo products
       let minQuantity = 1;
       if (cartItem.productId.type === 'combo') {
         const comboItems = await Product.find({
@@ -56,9 +55,8 @@ export const getCartItems = async (request, response) => {
             ),
             currency: newCurrency
           },
-        },
-        // Include quantity attribute for combo products
-        ...(cartItem.productId.type === 'combo' && { quantity: minQuantity }),
+          quantity: minQuantity 
+        }
       };
     }));
 

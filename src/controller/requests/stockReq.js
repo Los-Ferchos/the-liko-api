@@ -16,22 +16,24 @@ export const decreaseQuantity = async (request, response) => {
       await Promise.all(cartItems.map(async (cartItem) => {
         const { productId, quantity } = cartItem;
   
-        if (cartItem.productId.type === 'combo') {
+        if (productId.type === 'combo') {
           const comboItems = await Product.find({
-            _id: { $in: cartItem.productId.items },
+            _id: { $in: productId.items },
           });
-  
+        
+          let isComboOutStock = false;
           await Promise.all(comboItems.map(async (item) => {
-            const updatedQuantity = item.quantity - (quantity * cartItem.quantity);
+            const updatedQuantity = item.quantity - quantity;
+            isComboOutStock = (updatedQuantity === 0 || isComboOutStock);
             await Product.findByIdAndUpdate(item._id, { quantity: updatedQuantity });
           }));
+
+          if(isComboOutStock) Product.findByIdAndUpdate(productId._id, { quantity: 0 })
         } else {
-          const updatedQuantity = cartItem.productId.quantity - quantity;
+          const updatedQuantity = productId.quantity - quantity;
           await Product.findByIdAndUpdate(productId, { quantity: updatedQuantity });
         }
       }));
-  
-      await CartItem.deleteMany({ _id: { $in: cartItemIds }, quantity: { $lte: 0 } });
   
       const updatedCartItems = await CartItem.find({ _id: { $in: cartItemIds } }).populate('productId');
       response.status(200).json(updatedCartItems);

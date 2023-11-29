@@ -1,3 +1,6 @@
+import Category from "../../models/Category.js";
+import Product from "../../models/Product.js";
+
 /**
  * Gets all available combo products.
  * @returns {Object[]} - An array of available combo products with populated items.
@@ -39,7 +42,7 @@ export const getAllCombos = async (request, response) => {
   
       const comboProducts = await Product.find({
         category: comboCategory._id,
-        availability: true,
+        deleted: false,
       }).populate('items');
   
       response.status(200).json(comboProducts);

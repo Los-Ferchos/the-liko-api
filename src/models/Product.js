@@ -11,7 +11,7 @@ const productSchema = new Schema({
     type: {
       type: String,
       enum: ['product', 'combo'],
-      default: 'produt'
+      default: 'product'
     }, 
     description: {
       type: String,
@@ -31,6 +31,7 @@ const productSchema = new Schema({
     },
     quantity: {
       type: Number,
+      default: 1,
     },
     imgUrl: {
       type: String,

@@ -30,10 +30,6 @@ const drinkMixSchema = new Schema({
       required: true
     }
   ],
-  details: {
-    type: Object,
-    required: true
-  },
   preparationSteps: [
     {
       type: String,
@@ -47,7 +43,13 @@ const drinkMixSchema = new Schema({
   deleted: {
     type: Boolean,
     default: false
-  }
+  },
+  relatedProducts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'Product'
+    }
+  ]
 });
 
 const DrinkMix = model('DrinkMix', drinkMixSchema);
