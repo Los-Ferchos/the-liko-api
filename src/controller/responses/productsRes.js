@@ -38,6 +38,59 @@ export const getProductById = async (request, response) => {
  * @param {*} response - The response object.
 */
 export const getAllProducts = async (request, response) => {
+  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = request.query;
+  try {
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    const sortWay = getSortTypeField(sort);
+    const filters = getFiltersQuery(ft1, ft2, ft3);
+
+    let query = { deleted: false };
+
+    if (search) {
+      query.name = { $regex: new RegExp(search, 'i') };
+    }
+    const products = await Product.find(filters.length > 0 ?
+      { $and: filters, ...query } : query
+    ).skip(startIndex)
+      .limit(limit)
+      .sort({
+        [sortWay]: (sort >= 0 ? 1 : -1)
+      });
+
+    const topSellingProducts = await Product.find({
+      $and: [
+        { name: { $regex: new RegExp(search, 'i') } },
+        { availability: true },
+        { deleted: false }
+      ]
+    })
+      .sort({ sells: -1 })
+      .limit(5);
+
+
+    const totalProductsCount = await Product.countDocuments(query);
+    const pagination = generatePagination(page, limit, totalProductsCount);
+
+    response.status(200).json({
+      products,
+      topSellingProducts,
+      pagination
+    });
+  } catch (error) {
+    response.status(500).json({
+      error: error.message,
+    });
+  }
+}
+
+/**
+ * Gets a list of all available products as a JSON response using pagination.
+
+ * @param {*} req - The request object.
+ * @param {*} res - The response object.
+*/
+export const getAllAvailableProducts = async (request, response) => {
   const { 
     page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD"
   } = request.query;
@@ -46,7 +99,8 @@ export const getAllProducts = async (request, response) => {
     const sortWay = getSortTypeField(sort);
     const filters = getFiltersQuery(ft1, ft2, ft3);
 
-    let query = { deleted: false };
+    let query = { availability: true, deleted: false };
+    query.quantity =  {$gte: 1};
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -80,60 +134,7 @@ export const getAllProducts = async (request, response) => {
       error: error.message,
     });
   }
-}
 
-/**
- * Gets a list of all available products as a JSON response using pagination.
-
- * @param {*} req - The request object.
- * @param {*} res - The response object.
-*/
-export const getAllAvailableProducts = async (req, res) => {
-  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = req.query;
-  try {
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    const sortWay = getSortTypeField(sort);
-    const filters = getFiltersQuery(ft1, ft2, ft3);
-
-    let query = { availability: true, deleted: false };
-    query.quantity =  {$gte: 1};
-
-    if (search) {
-      query.name = { $regex: new RegExp(search, 'i') };
-    }
-    const products = await Product.find(filters.length > 0 ?
-      { $and: filters, ...query } : query
-    ).skip(startIndex)
-      .limit(limit)
-      .sort({
-        [sortWay]: (sort >= 0 ? 1 : -1)
-      });
-
-    const topSellingProducts = await Product.find({
-      $and: [
-        { name: { $regex: new RegExp(search, 'i') } },
-        { availability: true },
-        { deleted: false }
-      ]
-    })
-      .sort({ sells: -1 })
-      .limit(5);
-
-
-    const totalProductsCount = await Product.countDocuments(query);
-    const pagination = generatePagination(page, limit, totalProductsCount);
-
-    res.status(200).json({
-      products,
-      topSellingProducts,
-      pagination
-    });
-  } catch (error) {
-    res.status(500).json({
-      error: error.message,
-    });
-  }
 }
 
 /**
