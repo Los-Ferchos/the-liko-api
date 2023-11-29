@@ -5,7 +5,7 @@ import { generatePagination } from "../methods/paginate.js";
 import { getSortTypeField } from "../methods/sort.js";
 
 /**
- * Gets an product by its ID as a JSON response.
+ * Gets a product by its ID as a JSON response, with the items or combos array populated.
  *
  * @param {*} request - The request object.
  * @param {*} response - The response object.
@@ -14,17 +14,38 @@ export const getProductById = async (request, response) => {
   const { newCurrency = "USD" } = request.query;
 
   try {
-    const product = await Product.findById(request.params.id);
+    const product = await Product.findById(request.params.id).populate('items');
+    
     if (!product) {
       response.status(404).json({ error: 'Product not found' });
     } else {
-      response.status(200).json(
-        {...product._doc, price: { 
-            value: convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency),
+      const convertedPrice = convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency);
+      
+      let itemsOrCombos = [];
+      
+      if (product._doc.type === 'product') {
+        itemsOrCombos = await Product.find({
+          type: 'combo',
+          items: { $in: [request.params.id] },
+        }).populate('items');
+      } else if (product._doc.type === 'combo') {
+        itemsOrCombos = product.items.map(item => ({
+          ...item._doc,
+          price: {
+            value: convertToCurrency(item._doc.price.value, item._doc.price.currency, newCurrency),
             currency: newCurrency
-          }
+          },
+        }));
+      }
+
+      response.status(200).json({
+        ...product._doc,
+        price: {
+          value: convertedPrice,
+          currency: newCurrency
         },
-      );
+        [product._doc.type === 'product' ? 'combos' : 'items']: itemsOrCombos,
+      });
     }
   } catch (error) {
     response.status(500).json({ error: 'Internal Server Error' });
