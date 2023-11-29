@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
 
-const CLIENT_ID = '689024350629-hoibo37qfivbkub11q5e8d9me53qu7ml.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REFRESH_TOKEN = "1//04CjMunBdND2ACgYIARAAGAQSNwF-L9IrYYXhg1OSAlpQjqBQ3kwoNPHwNWXwshJOX1vWXggxBWTN3q80WCnUM-xf2Ahh3V9HqAk";
+const CLIENT_ID = process.env.CLIENT_ID_GOOGLE;
+const CLIENT_SECRET = process.env.CLIENT_SECRET_GOOGLE;
+const REFRESH_TOKEN = process.env.TOKEN_GOOGLE;
 
 import { OAuth2Client } from "google-auth-library";
 import { getHTMLemailVerification } from '../methods/getHTMLemailVerification.js';

@@ -28,7 +28,7 @@ jobs:
       run: az acr login --name $ACR_NAME
 
     - name: Build Docker Image
-      run: docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }} -f Dockerfile.prod .
+      run: docker build -t $ACR_NAME.azurecr.io/$IMAGE_NAME:${{ github.sha }} -f Dockerfile.test .
       env:
         DOCKER_BUILDKIT: 1
 
