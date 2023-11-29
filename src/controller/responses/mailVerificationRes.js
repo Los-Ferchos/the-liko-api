@@ -14,6 +14,12 @@ authUrl.setCredentials({ refresh_token: REFRESH_TOKEN})
 
 const accessToken = authUrl.getAccessToken();
 
+/**
+ * Sends a verification email to the specified email address.
+ * @param {string} email - The email address to send the verification email to.
+ * @param {string} verificationCode - The verification code to include in the email.
+ * @returns {boolean} - Returns true if the email was sent successfully, false otherwise.
+ */
 export const sendVerificationEmail = (email, verificationCode) => {
     try {
         sendEmail(email, verificationCode);
@@ -24,6 +30,13 @@ export const sendVerificationEmail = (email, verificationCode) => {
     }
 }
 
+/**
+ * Sends an email with the provided verification code.
+ * 
+ * @param {string} to - The recipient's email address.
+ * @param {string} verificationCode - The verification code to be included in the email.
+ * @returns {void}
+ */
 const sendEmail = (to, verificationCode) => {
     const mailOptions = {
       from:' thelikoecommerce@gmail.com',
@@ -41,6 +54,10 @@ const sendEmail = (to, verificationCode) => {
     });
   };
 
+/**
+ * The transporter object used for sending emails.
+ * @type {Transporter}
+ */
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {

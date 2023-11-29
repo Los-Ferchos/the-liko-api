@@ -8,6 +8,11 @@ const productSchema = new Schema({
       type: String,
       required: true
     },
+    type: {
+      type: String,
+      enum: ['product', 'combo'],
+      default: 'product'
+    }, 
     description: {
       type: String,
       required: true
@@ -26,7 +31,7 @@ const productSchema = new Schema({
     },
     quantity: {
       type: Number,
-      required: true
+      default: 1,
     },
     imgUrl: {
       type: String,
@@ -52,23 +57,20 @@ const productSchema = new Schema({
     },
     details: {
       type: Object,
-      required: true
     },
-    drinkMixes: [
+    items: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'DrinkMix'
-      }
-    ],
-    combos: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Combo'
+        ref: 'Product'
       }
     ],
     availability: {
       type: Boolean,
       default: true
+    },
+    deleted: {
+      type: Boolean,
+      default: false
     }
 });
   

@@ -1,4 +1,5 @@
 import CartItem from "../../models/CartItem.js";
+import Product from "../../models/Product.js";
 import { convertToCurrency } from "../methods/changeCurrency.js";
 import { doesProductExistById } from '../methods/validations.js';
 
@@ -22,6 +23,7 @@ export const getCartItems = async (request, response) => {
       return response.status(404).json({ error: 'Cart not found for the specified user' });
     }
 
+    // Remove invalid cart items
     for (let i = cartItems.length - 1; i >= 0; i--) {
       const productId = cartItems[i].productId._id;
       const productExists = await doesProductExistById(productId);
@@ -31,21 +33,32 @@ export const getCartItems = async (request, response) => {
     }
 
     const updatedCartItems = await CartItem.find({ userId }).populate('productId');
-    const cartItemsWithProductInfo = updatedCartItems.map((cartItem) => {
+    const cartItemsWithProductInfo = await Promise.all(updatedCartItems.map(async (cartItem) => {
       const { _id, quantity } = cartItem;
+
+      let minQuantity = 1;
+      if (cartItem.productId.type === 'combo') {
+        const comboItems = await Product.find({
+          _id: { $in: cartItem.productId.items },
+        });
+        minQuantity = Math.min(...comboItems.map(item => item.quantity || 1));
+      }
+
       return {
         cartItemId: _id,
         quantity,
         productInfo: {
-          ...cartItem.productId._doc, price: {
+          ...cartItem.productId._doc,
+          price: {
             value: convertToCurrency(
               cartItem.productId._doc.price.value, cartItem.productId._doc.price.currency, newCurrency
             ),
             currency: newCurrency
-          }
+          },
+          quantity: minQuantity 
         }
       };
-    });
+    }));
 
     response.status(200).json(cartItemsWithProductInfo);
   } catch (error) {

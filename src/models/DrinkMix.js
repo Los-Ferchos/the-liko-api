@@ -1,5 +1,8 @@
 import { Schema, model } from 'mongoose';
 
+/* 
+  Drink Mix Schema
+*/
 const drinkMixSchema = new Schema({
   name: {
     type: String,
@@ -21,28 +24,30 @@ const drinkMixSchema = new Schema({
     type: String,
     required: true
   },
-  videoUrl: {
-    type: String,
-  },
-  elements: [
+  ingredients: [
     {
-        type: Schema.Types.ObjectId,
-        ref: 'Product'
+      type: String,
+      required: true
     }
   ],
-  details: {
-    type: Object,
-    required: true
-  },
   preparationSteps: [
     {
-        type: String
+      type: String,
+      required: true
     }
   ],
-  combos: [
+  availability: {
+    type: Boolean,
+    default: true
+  },
+  deleted: {
+    type: Boolean,
+    default: false
+  },
+  relatedProducts: [
     {
       type: Schema.Types.ObjectId,
-      ref: 'Combo'
+      ref: 'Product'
     }
   ]
 });
