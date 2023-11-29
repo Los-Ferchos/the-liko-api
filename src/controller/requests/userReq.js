@@ -1,5 +1,10 @@
 import User from '../../models/User.js';
 import CryptoJS from 'crypto-js'
+import crypto from 'crypto';
+import { sendVerificationEmail } from '../responses/mailVerificationRes.js';
+import UserToRegister from '../../models/UserToRegister.js';
+import jwt from 'jsonwebtoken';
+
 
 /**
  * Handles user login.
@@ -10,12 +15,19 @@ import CryptoJS from 'crypto-js'
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
+  if (Object.keys(req.body).length > 2) {
+    return res.status(400).json({ message: 'Too many parameters in the request' });
+  }
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password are required' });
+  }
+
   try {
     const user = await User.findOne({ email: email });
 
     if (user) {
       decryptPassword(user, req, res);
-
     } else {
       res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -45,7 +57,7 @@ const decryptPassword = (user, req, res) => {
   if (storedPassword !== req.body.password) {
     res.status(401).json({ message: 'Wrong Password' });
   } else {
-    res.status(200).json({ userId: user._id });
+    res.status(200).json({ userId: user._id, isAdmin: user.isAdmin });
   }
 }
 
@@ -70,7 +82,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * - [A-Za-z\d+,\.\-_'"!¿?]{6,80}: Allowed characters include letters (upper and lower case),
  *   digits, and the specified special characters. Length must be between 6 and 80 characters.
  */
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[+,\.\-_'"!¿?])[A-Za-z\d+,\.\-_'"!¿?]{6,80}$/;
+const passwordPattern = /^(?=.*[a-zñ])(?=.*[A-ZÑ])(?=.*\d)(?=.*[+,\.\-_'"!¿?])[A-Za-zñÑ\d+,\.\-_'"!¿?]{6,80}$/;
 
 /**
  * Regular expression pattern to validate names.
@@ -78,7 +90,8 @@ const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[+,\.\-_'"!¿?])[A-
  * - [A-Za-z\s]{3,80}: Allowed characters include letters (upper and lower case) and spaces.
  *   Length must be between 3 and 80 characters.
  */
-const namePattern = /^(?! {0,2}$)[A-Za-z\s]{3,80}$/;
+const namePattern = /^(?! {0,2}$)[A-Za-zñÑ\s]{3,80}$/;
+
 
 
 /**
@@ -116,29 +129,7 @@ const isValidUserName = (name) => {
   return isValidName;
 }
 
-/**
- * Registers a new user with the provided username, email, and password.
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @throws {Object} - Returns a JSON object with an 'error' property if an error occurs during registration.
- */
-const registerUser = async (req, res) => {
-  const newUser = new User({
-    username: req.body.username,
-    email: req.body.email,
-    password: CryptoJS.AES.encrypt(
-      req.body.password,
-      process.env.PSWD_DECRYPT_CODE
-    ).toString(),
-  });
 
-  try {
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
-  } catch (err) {
-    res.status(500).json({ error: "Error during user registration." });
-  }
-}
 
 /**
  * Handles user signup by validating email, checking for existing users, and performing necessary checks.
@@ -147,7 +138,7 @@ const registerUser = async (req, res) => {
  * @throws {Object} - Returns a JSON object with an 'error' property if any validation or registration error occurs.
  */
 export const signUp = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, confirmPassword} = req.body;
 
   if (!isValidEmail(email)) {
     res.status(500).json({ error: "Invalid email" });
@@ -156,18 +147,144 @@ export const signUp = async (req, res) => {
       const existingUser = await User.findOne({ email: email }).exec();
 
       if (existingUser) {
-        res.status(500).json({ error: "The email inserted is already in use" });
+        res.status(200).json({ message: "The email inserted is already in use" });
       } else if (!isValidPassword(password)) {
-        res.status(500).json({ error: "Invalid Password" });
+        res.status(200).json({ message: "Invalid Password" });
       } else if (!isValidUserName(username)) {
-        res.status(500).json({ error: "Invalid User Name" });
+        res.status(200).json({ message: "Invalid User Name" });
+      } else if (password !== confirmPassword) {
+        res.status(200).json({ message: "Passwords do not match" });
       } else {
-        await registerUser(req, res);
-      }
-    } catch (error) {
-      res.status(500).json({ error: "Internal Server Error" });
+          const result = await uploadUserToRegister(username, email, password);
+          res.status(201).json({ message: "Verification code sent", token: result});
+        };
+      } catch (error) {
+      res.status(400).json({ error: "Bad request Mau" });
     }
   }
 };
 
 
+
+/**
+ * Generates a random verification code
+ * @returns {string} - The verification code.
+ */
+const generateVerificationCode = () => {
+  return crypto.randomBytes(3).toString('hex').toUpperCase(); 
+};
+
+/**
+ * Uploads a user to the database to register
+ * @param {string} username - The username to be validated.
+ * @param {string} email - The email to be validated.
+ * @param {string} password - The password to be validated.
+ * @returns {string} - The token to be validated.
+ */
+const uploadUserToRegister = async (username, email, password) => {
+    
+    const verificationCode = generateVerificationCode();
+    try{
+      const expirationDate = new Date();
+      expirationDate.setMinutes(expirationDate.getMinutes() + 10);
+      const token = generateToken({username, email}, process.env.PSWD_DECRYPT_CODE);
+      await deletePreviusRegister(token);
+      const userToRegister = new UserToRegister({
+        codeVerification: verificationCode,
+        username: username,
+        email: email,
+        password : password,
+        token: token,
+        expirationDate: expirationDate,
+      });
+      const result = await userToRegister.save();
+      if(result._id){
+        sendVerificationEmail(email, verificationCode);
+        return token;
+      }
+    }catch (error) {
+      throw new Error(error);
+    }
+}
+
+/**
+ * Deletes the previous register with the same token
+ * @param {string} token - The token to be validated.
+ * @returns {boolean} - True if the token is valid, false otherwise.
+ */
+const deletePreviusRegister = async (token) => {
+  try {
+    const result = await UserToRegister.findOneAndDelete({ token: token });
+
+    if (!result) {
+      return false; 
+    }
+    return true; 
+  } catch (error) {
+    console.error('Error deleting previous record:', error.message);
+    throw new Error('There was an error deleting the previous record');
+  }
+};
+
+
+
+/**
+ * Generates a token with the provided payload and secret.
+ * @param {Object} payload - The payload to be used for generating the token.
+ * @param {string} secret - The secret to be used for generating the token.
+ * @returns {string} - The generated token.
+ */
+const generateToken = (payload, secret) => {
+  return jwt.sign(payload, secret);
+};
+
+/**
+ * Handles user signup by validating email, checking for existing users, and performing necessary checks.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @throws {Object} - Returns a JSON object with an 'error' property if any validation or registration error occurs.
+ */
+export const confirmRegister = async (req, res) => {
+  const { token, codeVerification } = req.body;
+  try {
+    const userToRegister = await UserToRegister.findOne({ token: token }).exec();
+    if (userToRegister) {
+      if (userToRegister.codeVerification === codeVerification) {
+        const user = await registerUser(userToRegister.username, userToRegister.email, userToRegister.password);
+        res.status(201).json({ userId: user._id });
+      } else {
+        res.status(200).json({ message: "Invalid verification code" });
+      }
+    } else {
+      res.status(200).json({ message: "Invalid token" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: "Bad request" });
+  }
+}
+
+/**
+ * Registers a new user with the provided username, email, and password.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @throws {Object} - Returns a JSON object with an 'error' property if an error occurs during registration.
+ */
+const registerUser = async (username, email,password) => {
+  const newUser = new User({
+    username: username,
+    email: email,
+    password: CryptoJS.AES.encrypt(
+      password,
+      process.env.PSWD_DECRYPT_CODE
+    ).toString(),
+    isAdmin: false
+  });
+
+  try {
+    const savedUser = await newUser.save();
+    return savedUser;
+  } catch (err) {
+    return err;
+  }
+}
