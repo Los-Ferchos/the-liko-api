@@ -1,4 +1,5 @@
 import DrinkMix from "../../models/DrinkMix.js";
+import { generatePagination } from "../methods/paginate.js";
 
 /**
  * Gets all available drink mixes.
@@ -25,12 +26,19 @@ export const getAllAvailableDrinkMixes = async (request, response) => {
  * @throws {Object} - An error object with a message property.
  */
 export const getAllDrinkMixes = async (request, response) => {
+    const {  page = 1, limit = 6 } = request.query;
+
     try {
-      const drinkMixes = await DrinkMix.find({
-        deleted: false,
-      });
+      const query = { deleted: false }
+      const drinkMixes = await DrinkMix.find(query);
+
+      const totalProductsCount = await DrinkMix.countDocuments(query);
+      const pagination = generatePagination(page, limit, totalProductsCount);
   
-      response.status(200).json(drinkMixes);
+      response.status(200).json({
+        products: drinkMixes,
+        pagination
+      });
     } catch (error) {
       response.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
