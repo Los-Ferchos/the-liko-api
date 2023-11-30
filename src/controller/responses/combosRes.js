@@ -1,5 +1,6 @@
 import Category from "../../models/Category.js";
 import Product from "../../models/Product.js";
+import { generatePagination } from "../methods/paginate.js";
 
 /**
  * Gets all available combo products.
@@ -33,20 +34,31 @@ export const getAllAvailableCombos = async (request, response) => {
  * @throws {Object} - An error object with a message property.
  */
 export const getAllCombos = async (request, response) => {
+    const {  page = 1, limit = 6 } = request.query;
+
     try {
       const comboCategory = await Category.findOne({ name: { $regex: /combos?/i } });
   
       if (!comboCategory) {
         return response.status(404).json({ message: 'Combos category not found' });
       }
-  
-      const comboProducts = await Product.find({
+
+      const query = {
         category: comboCategory._id,
         deleted: false,
-      }).populate('items');
+      }
   
-      response.status(200).json(comboProducts);
+      const comboProducts = await Product.find(query).populate('items');
+
+      const totalProductsCount = await Product.countDocuments(query);
+      const pagination = generatePagination(page, limit, totalProductsCount);
+  
+      response.status(200).json({
+        products: comboProducts,
+        pagination
+      });
     } catch (error) {
+      console.log(error);
       response.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 }
