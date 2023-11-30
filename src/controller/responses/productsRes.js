@@ -15,7 +15,7 @@ import Order from "../../models/Order.js"
  * @param {*} response - The response object.
  */
 export const getProductById = async (request, response) => {
-  const { newCurrency = "USD" } = request.query;
+  const { newCurrency = "USD", admin = false } = request.query;
 
   try {
     const productId = request.params.id;
@@ -23,7 +23,7 @@ export const getProductById = async (request, response) => {
 
     if (!product) {
       response.status(404).json({ error: 'Product not found' });
-    } else if (!product.availability || product.deleted) {
+    } else if ((!product.availability && !admin) || product.deleted) {
       return res.status(403).json({ message: 'Cannot retrieve the product. It is not available or has been deleted.' });
     } else {
       const convertedPrice = convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency);
@@ -73,7 +73,9 @@ export const getProductById = async (request, response) => {
  * @param {*} response - The response object.
 */
 export const getAllProducts = async (request, response) => {
-  const { page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "" } = request.query;
+  const { 
+    page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", type = ""
+  } = request.query;
   try {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
@@ -85,6 +87,7 @@ export const getAllProducts = async (request, response) => {
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
     }
+    if(type.length > 0) query.type = type;
     const products = await Product.find(filters.length > 0 ?
       { $and: filters, ...query } : query
     ).skip(startIndex)
