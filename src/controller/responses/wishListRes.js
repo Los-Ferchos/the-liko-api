@@ -1,5 +1,6 @@
 import Wishlist from "../../models/wishlistSchema.js";
 import { doesUserExistById, doesProductExistById } from '../methods/validations.js';
+import { getProductsWithNewCurrency } from "../methods/changeCurrency.js";
 
 /**
  * Gets the wishlist items for a user.
@@ -9,6 +10,7 @@ import { doesUserExistById, doesProductExistById } from '../methods/validations.
  * @returns {Object} The wishlist items for the user.
  */
 export const getWishlistItems = async (req, res) => {
+    const { newCurrency = "USD" } = request.query;
     try {
         const userId = req.params.userId;
         const userExists = await doesUserExistById(userId);
@@ -33,7 +35,7 @@ export const getWishlistItems = async (req, res) => {
 
         await wishlist.save();
 
-        res.status(200).json(wishlist.products);
+        res.status(200).json(getProductsWithNewCurrency(wishlist.products, newCurrency));
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });
     }

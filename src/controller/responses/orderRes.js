@@ -1,6 +1,12 @@
 import Order from "../../models/Order.js";
 import { generatePagination } from "../methods/paginate.js";
 
+/**
+ * Mehtod to get all the orders in the database.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ */
 export const getAllOrders = async (req, res) => {
   try {
     const orders = await Order.find();
@@ -10,6 +16,13 @@ export const getAllOrders = async (req, res) => {
   }
 };
 
+/**
+ * Method to get an existing order with the provided ID.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the order or an error.
+ */
 export const getOrderById = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -23,6 +36,13 @@ export const getOrderById = async (req, res) => {
   }
 };
 
+/**
+ * Mehtod to get all the order of a user.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the orders of a user or an error.
+ */
 export const getOrdersByUserId = async (req, res) => {
   try {
     const userId = req.params.userId;

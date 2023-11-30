@@ -1,6 +1,12 @@
 import Order from "../../models/Order.js"
 import Product from "../../models/Product.js"
 
+/**
+ * Add a new order for the respective user.
+ * 
+ * @param {*} req - The request object.
+ * @param {*} res - The response object.
+ */
 export const addNewOrder = async (req, res) => {
   try {
     const newOrderData = req.body;
