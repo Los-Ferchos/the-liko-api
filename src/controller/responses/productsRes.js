@@ -6,7 +6,8 @@ import { generatePagination } from "../methods/paginate.js";
 import { getSortTypeField } from "../methods/sort.js";
 import RatingDetail from "../../models/RatingDetail.js";
 import { doesProductExistById , validateUserExist} from "../methods/validations.js";
-import Order from "../../models/Order.js"
+import Order from "../../models/Order.js";
+import RatingUser from "../../models/RatingUser.js";
 
 /**
  * Gets a product by its ID as a JSON response, with the items or combos array populated.
@@ -384,6 +385,36 @@ export const verifyProductPurchased = async (req, res) => {
     });
 
     res.status(200).json({ purchased: purchased });
+  }catch(error){
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+/**
+ * Retrieves the rating of a user for a specific product.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the rating is retrieved.
+ */
+export const getRatingUser = async (req, res) => {
+  const userId = req.params.userId;
+  const productId = req.params.productId;
+  try {
+    const userExist = await validateUserExist(userId);
+    if (!userExist) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+    const producExist = await doesProductExistById(productId);
+    if(!producExist){
+      return res.status(400).json({ error: 'Product not found' });
+    }
+
+    const ratingUser = await RatingUser.findOne({ userId: userId, productId: productId });
+    if(!ratingUser){
+      return res.status(400).json({ error: 'Rating not found' });
+    }
+    res.status(200).json({ ratingUser: ratingUser.rating });
   }catch(error){
     res.status(500).json({ error: error.message });
   }
