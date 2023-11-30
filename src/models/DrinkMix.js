@@ -14,11 +14,23 @@ const drinkMixSchema = new Schema({
   },
   rating: {
     type: Number,
-    required: true
+    required: true,
+    validate: {
+      validator: function (value) {
+        return value >= 0;
+      },
+      message: props => `${props.value} is not a valid positive number for price.`,
+    },
   },
   totalReviews: {
     type: Number,
-    required: true
+    required: true,
+    validate: {
+      validator: function (value) {
+        return value >= 0;
+      },
+      message: props => `${props.value} is not a valid positive number for price.`,
+    },
   },
   imgUrl: {
     type: String,

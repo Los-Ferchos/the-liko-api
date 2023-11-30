@@ -19,19 +19,43 @@ const productSchema = new Schema({
     },
     rating: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value >= 0;
+        },
+        message: props => `${props.value} is not a valid positive number for price.`,
+      },
     },
     totalReviews: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value >= 0;
+        },
+        message: props => `${props.value} is not a valid positive number for price.`,
+      },
     },
     sells: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value >= 0;
+        },
+        message: props => `${props.value} is not a valid positive number for price.`,
+      },
     },
     quantity: {
       type: Number,
       default: 1,
+      validate: {
+        validator: function (value) {
+          return value >= 0;
+        },
+        message: props => `${props.value} is not a valid positive number for price.`,
+      },
     },
     imgUrl: {
       type: String,
@@ -48,7 +72,13 @@ const productSchema = new Schema({
     price: {
       value: {
         type: Number,
-        required: true
+        required: true,
+        validate: {
+          validator: function (value) {
+            return value >= 0;
+          },
+          message: props => `${props.value} is not a valid positive number for price.`,
+        },
       },
       currency: {
         type: String,
