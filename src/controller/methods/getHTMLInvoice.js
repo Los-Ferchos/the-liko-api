@@ -475,7 +475,7 @@ export const getHTMLInvoice = (invoiceNo, formattedDate, totalCost, nit, name, c
         <tr>
           <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:20px 10px;font-family:arial,helvetica,sans-serif;" align="left">
             
-      <h1 class="v-text-align v-font-size" style="margin: 0px; color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word; font-family: 'Montserrat',sans-serif; font-size: 18px; font-weight: 400;"><strong>${currency} ${totalCost}</strong></h1>
+      <h1 class="v-text-align v-font-size" style="margin: 0px; color: #ffffff; line-height: 140%; text-align: center; word-wrap: break-word; font-family: 'Montserrat',sans-serif; font-size: 18px; font-weight: 400;"><strong>${currency} ${totalCost.toFixed(2)}</strong></h1>
     
           </td>
         </tr>
@@ -593,7 +593,7 @@ const generateProductTable = (products) => {
     <tr>
       <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:20px 10px;font-family:arial,helvetica,sans-serif;" align="left">
         
-  <h1 class="v-text-align v-font-size" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-family: 'Montserrat',sans-serif; font-size: 14px; font-weight: 400;"><strong>${product.productInfo.price.currency} ${product.productInfo.price.value}</strong></h1>
+  <h1 class="v-text-align v-font-size" style="margin: 0px; line-height: 140%; text-align: center; word-wrap: break-word; font-family: 'Montserrat',sans-serif; font-size: 14px; font-weight: 400;"><strong>${product.productInfo.price.currency} ${product.productInfo.price.value.toFixed(2)}</strong></h1>
 
       </td>
     </tr>
