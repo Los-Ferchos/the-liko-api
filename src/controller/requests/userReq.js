@@ -288,3 +288,18 @@ const registerUser = async (username, email,password) => {
     return err;
   }
 }
+
+export const getUserByToken = async (req, res) => {
+  const { token } = req.params;
+  try {
+    const user = await User.findOne({ _id: token }).exec();
+    if (user) {
+      res.status(200).json({ user });
+    } else {
+      res.status(200).json({ message: "Invalid token" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: "Bad request" });
+  }
+}
