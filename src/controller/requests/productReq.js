@@ -182,10 +182,14 @@ export const modifyRatingProduct = async (req, res) => {
 export const getRatingDetail = async (req, res) => {
   try {
     const productId = req.params.id;
-    const ratingDetail = await RatingDetail.findOne({ productId: productId });
+    let ratingDetail = await RatingDetail.findOne({ productId: productId });
     if (!ratingDetail) {
-      return res.status(404).json({ message: 'Product not found' });
+      await createRatingDetail(productId);
+      updateTotalRatingToProduct(productId, 0);
+      ratingDetail = await RatingDetail.findOne({ productId: productId });
+      //return res.status(404).json({ message: 'Product not found' });
     }
+
     res.status(200).json(ratingDetail);
   } catch (error) {
     res.status(400).json({ error: error.message });
