@@ -25,10 +25,10 @@ export const getCartItems = async (request, response) => {
 
     // Remove invalid cart items
     for (let i = cartItems.length - 1; i >= 0; i--) {
-      const productId = cartItems[i].productId._id;
+      const productId = cartItems[i].productId;
       const productExists = await doesProductExistById(productId);
       if (!productExists) {
-        await CartItem.findByIdAndRemove(cartItems[i]._id);
+        await CartItem.findByIdAndDelete(cartItems[i]._id);
       }
     }
 

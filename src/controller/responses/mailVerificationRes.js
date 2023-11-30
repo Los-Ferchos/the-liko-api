@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
 
-const CLIENT_ID = '689024350629-hoibo37qfivbkub11q5e8d9me53qu7ml.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const REFRESH_TOKEN = "1//04CjMunBdND2ACgYIARAAGAQSNwF-L9IrYYXhg1OSAlpQjqBQ3kwoNPHwNWXwshJOX1vWXggxBWTN3q80WCnUM-xf2Ahh3V9HqAk";
+const CLIENT_ID = process.env.CLIENT_ID_GOOGLE;
+const CLIENT_SECRET = process.env.CLIENT_SECRET_GOOGLE;
+const REFRESH_TOKEN = process.env.TOKEN_GOOGLE;
 
 import { OAuth2Client } from "google-auth-library";
 import { getHTMLemailVerification } from '../methods/getHTMLemailVerification.js';
@@ -14,6 +14,12 @@ authUrl.setCredentials({ refresh_token: REFRESH_TOKEN})
 
 const accessToken = authUrl.getAccessToken();
 
+/**
+ * Sends a verification email to the specified email address.
+ * @param {string} email - The email address to send the verification email to.
+ * @param {string} verificationCode - The verification code to include in the email.
+ * @returns {boolean} - Returns true if the email was sent successfully, false otherwise.
+ */
 export const sendVerificationEmail = (email, verificationCode) => {
     try {
         sendEmail(email, verificationCode);
@@ -24,6 +30,13 @@ export const sendVerificationEmail = (email, verificationCode) => {
     }
 }
 
+/**
+ * Sends an email with the provided verification code.
+ * 
+ * @param {string} to - The recipient's email address.
+ * @param {string} verificationCode - The verification code to be included in the email.
+ * @returns {void}
+ */
 const sendEmail = (to, verificationCode) => {
     const mailOptions = {
       from:' thelikoecommerce@gmail.com',
@@ -41,6 +54,10 @@ const sendEmail = (to, verificationCode) => {
     });
   };
 
+/**
+ * The transporter object used for sending emails.
+ * @type {Transporter}
+ */
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
