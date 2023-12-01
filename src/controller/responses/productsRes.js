@@ -325,7 +325,7 @@ export const getAllProductsBySubcategory = async (request, response) => {
     const products = await Product.find(filters.length > 0 ? { $and: filters, ...query } : { subcategory: subcategoryId, ...query }).skip(startIndex).limit(limit).sort({
       [sortWay]: (sort >= 0 ? 1 : -1)
     });
-    const totalProductsCount = await Product.countDocuments({ subcategory: subcategoryId });
+    const totalProductsCount = await Product.countDocuments({ subcategory: subcategoryId, ...query });
 
     const pagination = generatePagination(page, limit, totalProductsCount);
 
