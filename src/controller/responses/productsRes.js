@@ -44,10 +44,14 @@ export const getProductById = async (request, response) => {
         itemsOrCombos = await Product.find({
           type: 'combo',
           items: { $in: [productId] },
+          availability: true,
+          deleted: false
         }).populate('items');
 
         drinkMixes = await DrinkMix.find({
-          relatedProducts: { $in: [productId] }
+          relatedProducts: { $in: [productId] },
+          availability: true,
+          deleted: false
         });
       }
 

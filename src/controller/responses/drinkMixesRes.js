@@ -56,7 +56,13 @@ export const getDrinkMixById = async (request, response) => {
     try {
       const drinkMixId = request.params.id;
   
-      const drinkMix = await DrinkMix.findById(drinkMixId);
+      const drinkMix = await DrinkMix.findById(drinkMixId).populate({
+        path: 'relatedProducts',
+        match: {
+          deleted: false,
+          availability: true
+        }
+      });;
   
       if (!drinkMix) {
         return response.status(404).json({ message: 'Drink mix not found' });
