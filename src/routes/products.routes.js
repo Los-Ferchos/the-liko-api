@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getAllProducts, getAllAvailableProducts, getAllProductsByCategory, getAllProductsByCategoryAndSubcategory, getAllProductsBySubcategory, getProductById, getAllRatingsDetail, verifyProductPurchased} from '../controller/responses/productsRes.js';
-import { deleteProductById, editProductById, saveNewProduct, updateAvailability, getRatingDetail, modifyRatingProduct } from '../controller/requests/productReq.js';
+import { getAllProducts, getAllAvailableProducts, getAllProductsByCategory, getAllProductsByCategoryAndSubcategory, getAllProductsBySubcategory, getProductById, getAllRatingsDetail, verifyProductPurchased, getRatingUser} from '../controller/responses/productsRes.js';
+import { deleteProductById, editProductById, saveNewProduct, updateAvailability, getRatingDetail, modifyRatingProduct, saveUserRating} from '../controller/requests/productReq.js';
 
 const productRouter = Router();
 
@@ -23,6 +23,10 @@ productRouter.get('/products/category/:categoryId/subcategory/:subcategoryId', g
 productRouter.get('/products/subcategory/:subcategoryId', getAllProductsBySubcategory);
 
 productRouter.post('/products', saveNewProduct);
+
+productRouter.post('/ratingUser', saveUserRating);
+
+productRouter.get('/ratingUser/:userId/:productId', getRatingUser);
 
 productRouter.put('/products/:id', editProductById);
 

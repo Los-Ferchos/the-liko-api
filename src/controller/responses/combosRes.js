@@ -47,8 +47,11 @@ export const getAllCombos = async (request, response) => {
         category: comboCategory._id,
         deleted: false,
       }
+
+      const startIndex = (page - 1) * limit;
   
-      const comboProducts = await Product.find(query).populate('items');
+      const comboProducts = 
+        await Product.find(query).limit(limit).skip(startIndex).populate('items');
 
       const totalProductsCount = await Product.countDocuments(query);
       const pagination = generatePagination(page, limit, totalProductsCount);

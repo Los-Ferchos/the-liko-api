@@ -30,7 +30,9 @@ export const getAllDrinkMixes = async (request, response) => {
 
     try {
       const query = { deleted: false }
-      const drinkMixes = await DrinkMix.find(query);
+      const startIndex = (page - 1) * limit;
+
+      const drinkMixes = await DrinkMix.find(query).limit(limit).skip(startIndex);
 
       const totalProductsCount = await DrinkMix.countDocuments(query);
       const pagination = generatePagination(page, limit, totalProductsCount);

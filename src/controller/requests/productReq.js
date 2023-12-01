@@ -1,6 +1,7 @@
 import Product from '../../models/Product.js';
 import RatingDetail from '../../models/RatingDetail.js';
 import { doesProductExistById , validateUserExist} from '../methods/validations.js';
+import RatingUser from '../../models/RatingUser.js';
 /**
  * Saves a new Product.
  * 
@@ -85,6 +86,9 @@ export const updateAvailability = async (req, res) => {
  */
 export const modifyRatingProduct = async (req, res) => {
   const { tokenUser, productId, rating, decrease} = req.body;
+  if((rating === 0 && decrease === true)){
+    return res.status(200).json({ message: 'Without changes' });
+  }
   try{
     const userExist = await validateUserExist(tokenUser);
     if(!userExist){
@@ -244,5 +248,65 @@ const updateTotalRatingToProduct = async (productId, totalRating) => {
     return false;
   }
 }
- 
+
+/**
+ * Saves user rating for a product.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the rating is saved successfully.
+ */
+export const saveUserRating = async (req, res) => {
+  const { userId, productId, rating } = req.body;
+  try{
+    const userExist = await validateUserExist(userId);
+    if(!userExist){
+      return res.status(400).json({ error: 'User not found' });
+    }
+    const producExist = await doesProductExistById(productId);
+    if(!producExist){
+      return res.status(400).json({ error: 'Product not found' });
+    }
+
+    if(!validateRating(rating)){
+      return res.status(400).json({ error: 'Rating invalid' });
+    }
+
+    const ratingExist = await verifyRatingExist(productId, userId);
+
+    if(ratingExist){
+      const response = await RatingUser.findOne({productId: productId, userId: userId});
+      response.rating = rating;
+      await response.save();
+     } 
+     else{
+        const newRating = new RatingUser({
+          productId: productId,
+          userId: userId,
+          rating: rating
+        });
+        await newRating.save();
+      }
+    res.status(200).json({ message: 'Rating saved successfully' });
+  }catch(error){
+    res.status(400).json({ message: error.message });
+  }
+}
+
+/**
+ * Checks if a rating exists for a given product and user.
+ * @param {string} productId - The ID of the product.
+ * @param {string} userId - The ID of the user.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the rating exists, false otherwise.
+ */
+const verifyRatingExist = async (productId, userId) => {
+  try{
+    const ratingExist = await RatingUser.findOne({productId: productId, userId: userId});
+    if(ratingExist){
+      return true;
+    }
+    return false;
+  }catch(error){
+    return false;
+  }
+}
 
