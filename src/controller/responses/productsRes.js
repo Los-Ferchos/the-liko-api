@@ -5,7 +5,7 @@ import { getFiltersQuery } from "../methods/filter.js";
 import { generatePagination } from "../methods/paginate.js";
 import { getSortTypeField } from "../methods/sort.js";
 import RatingDetail from "../../models/RatingDetail.js";
-import { doesProductExistById , validateUserExist} from "../methods/validations.js";
+import { doesProductExistById, validateUserExist } from "../methods/validations.js";
 import Order from "../../models/Order.js";
 import RatingUser from "../../models/RatingUser.js";
 
@@ -74,7 +74,7 @@ export const getProductById = async (request, response) => {
  * @param {*} response - The response object.
 */
 export const getAllProducts = async (request, response) => {
-  const { 
+  const {
     page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", type = ""
   } = request.query;
   try {
@@ -88,7 +88,7 @@ export const getAllProducts = async (request, response) => {
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
     }
-    if(type.length > 0) query.type = type;
+    if (type.length > 0) query.type = type;
     const products = await Product.find(filters.length > 0 ?
       { $and: filters, ...query } : query
     ).skip(startIndex)
@@ -130,7 +130,7 @@ export const getAllProducts = async (request, response) => {
  * @param {*} res - The response object.
 */
 export const getAllAvailableProducts = async (request, response) => {
-  const { 
+  const {
     page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD"
   } = request.query;
   try {
@@ -139,7 +139,7 @@ export const getAllAvailableProducts = async (request, response) => {
     const filters = getFiltersQuery(ft1, ft2, ft3);
 
     let query = { availability: true, deleted: false };
-    query.quantity =  {$gte: 1};
+    query.quantity = { $gte: 1 };
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -183,7 +183,7 @@ export const getAllAvailableProducts = async (request, response) => {
  * @param {*} response - The response object.
 */
 export const getAllProductsByCategory = async (request, response) => {
-  const { 
+  const {
     page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD"
   } = request.query;
   const { categoryId } = request.params;
@@ -198,7 +198,7 @@ export const getAllProductsByCategory = async (request, response) => {
     }
 
     let query = { availability: true, deleted: false };
-    query.quantity =  {$gte: 1};
+    query.quantity = { $gte: 1 };
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -240,7 +240,7 @@ export const getAllProductsByCategory = async (request, response) => {
  * @param {*} response - The response object.
 */
 export const getAllProductsByCategoryAndSubcategory = async (request, response) => {
-  const { 
+  const {
     page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD"
   } = request.query;
   const { categoryId, subcategoryId } = request.params;
@@ -255,7 +255,7 @@ export const getAllProductsByCategoryAndSubcategory = async (request, response) 
     }
 
     let query = { availability: true, deleted: false };
-    query.quantity =  {$gte: 1};
+    query.quantity = { $gte: 1 };
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -294,8 +294,8 @@ export const getAllProductsByCategoryAndSubcategory = async (request, response) 
  * @param {*} response - The response object.
 */
 export const getAllProductsBySubcategory = async (request, response) => {
-  const { 
-    page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD" 
+  const {
+    page = 1, limit = 6, sort = -5, ft1 = '0_-1_1', ft2 = '0_-1_1', ft3 = '0_-1_1', search = "", newCurrency = "USD"
   } = request.query;
   const { subcategoryId } = request.params;
 
@@ -309,7 +309,7 @@ export const getAllProductsBySubcategory = async (request, response) => {
     }
 
     let query = { availability: true, deleted: false };
-    query.quantity =  {$gte: 1};
+    query.quantity = { $gte: 1 };
 
     if (search) {
       query.name = { $regex: new RegExp(search, 'i') };
@@ -370,7 +370,7 @@ export const verifyProductPurchased = async (req, res) => {
       return res.status(400).json({ error: 'User not found' });
     }
     const producExist = await doesProductExistById(productId);
-    if(!producExist){
+    if (!producExist) {
       return res.status(400).json({ error: 'Product not found' });
     }
 
@@ -385,7 +385,7 @@ export const verifyProductPurchased = async (req, res) => {
     });
 
     res.status(200).json({ purchased: purchased });
-  }catch(error){
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
@@ -406,16 +406,64 @@ export const getRatingUser = async (req, res) => {
       return res.status(400).json({ error: 'User not found' });
     }
     const producExist = await doesProductExistById(productId);
-    if(!producExist){
+    if (!producExist) {
       return res.status(400).json({ error: 'Product not found' });
     }
 
     const ratingUser = await RatingUser.findOne({ userId: userId, productId: productId });
-    if(!ratingUser){
+    if (!ratingUser) {
       return res.status(400).json({ error: 'Rating not found' });
     }
     res.status(200).json({ ratingUser: ratingUser.rating });
-  }catch(error){
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 }
+
+/**
+ * Gets all the realated combos of the specific product.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ */
+export const getRelatedCombos = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    if (!product) {
+      res.status(404).json({ error: 'Product not found' });
+    }
+
+    const relatedCombos = await Product.find({
+      type: 'combo',
+      items: productId
+    });
+
+    res.status(200).json(relatedCombos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+/**
+ * Gets all the related drink mixes of the specific product.
+ * 
+ * @param {Object} req - The request object. 
+ * @param {Object} res - The response object.
+ */
+export const getRelatedDrinkMixes = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    if (!product) {
+      res.status(404).json({ error: 'Product not found' });
+    }
+
+    const relatedDrinkMixes = await DrinkMix.find({
+      relatedProducts: productId
+    });
+
+    res.status(200).json(relatedDrinkMixes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }}
