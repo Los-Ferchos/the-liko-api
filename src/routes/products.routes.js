@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllProducts, getAllAvailableProducts, getAllProductsByCategory, getAllProductsByCategoryAndSubcategory, getAllProductsBySubcategory, getProductById, getAllRatingsDetail, verifyProductPurchased, getRatingUser} from '../controller/responses/productsRes.js';
+import { getAllProducts, getAllAvailableProducts, getAllProductsByCategory, getAllProductsByCategoryAndSubcategory, getAllProductsBySubcategory, getProductById, getAllRatingsDetail, verifyProductPurchased, getRatingUser, getRelatedCombos, getRelatedDrinkMixes} from '../controller/responses/productsRes.js';
 import { deleteProductById, editProductById, saveNewProduct, updateAvailability, getRatingDetail, modifyRatingProduct, saveUserRating} from '../controller/requests/productReq.js';
 
 const productRouter = Router();
@@ -35,5 +35,9 @@ productRouter.delete('/products/:id', deleteProductById);
 productRouter.patch('/products/:id', updateAvailability)
 
 productRouter.get('/all-products', getAllProducts);
+
+productRouter.get('/products/:id/combos', getRelatedCombos);
+
+productRouter.get('/products/:id/drink-mixes', getRelatedDrinkMixes);
 
 export default productRouter;
