@@ -36,8 +36,8 @@ productRouter.patch('/products/:id', updateAvailability)
 
 productRouter.get('/all-products', getAllProducts);
 
-productRouter.get('/products/:id/related-combos', getRelatedCombos);
+productRouter.get('/products/:id/combos', getRelatedCombos);
 
-productRouter.get('/products/:id/related-drink-mixes', getRelatedDrinkMixes);
+productRouter.get('/products/:id/drink-mixes', getRelatedDrinkMixes);
 
 export default productRouter;
