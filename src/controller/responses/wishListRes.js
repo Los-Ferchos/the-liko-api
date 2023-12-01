@@ -16,7 +16,13 @@ export const getWishlistItems = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const wishlist = await Wishlist.findOne({ userId });
+        const wishlist = await Wishlist.findOne({ userId }).populate({
+            path: 'products.productId',
+            match: {
+              deleted: false,
+              availability: true
+            }
+          });
 
         if (!wishlist) {
             return res.status(404).json({ error: 'Wishlist not found for the specified user' });
