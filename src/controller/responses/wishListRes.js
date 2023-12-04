@@ -1,4 +1,5 @@
 import Wishlist from "../../models/wishlistSchema.js";
+import { convertToCurrency } from "../methods/changeCurrency.js";
 import { doesUserExistById, doesProductExistById } from '../methods/validations.js';
 
 /**
@@ -10,37 +11,44 @@ import { doesUserExistById, doesProductExistById } from '../methods/validations.
  */
 export const getWishlistItems = async (req, res) => {
     try {
-        const userId = req.params.userId;
-        const userExists = await doesUserExistById(userId);
-        if (!userExists) {
-            return res.status(404).json({ error: 'User not found' });
+      const { newCurrency = "USD" } = req.query;
+      const userId = req.params.userId;
+      const userExists = await doesUserExistById(userId);
+  
+      if (!userExists) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      const wishlist = await Wishlist.findOne({ userId }).populate({
+        path: 'products.productId',
+        match: {
+          deleted: false,
+          availability: true
         }
-
-        const wishlist = await Wishlist.findOne({ userId }).populate({
-            path: 'products.productId',
-            match: {
-              deleted: false,
-              availability: true
-            }
-          });
-
-        if (!wishlist) {
-            return res.status(404).json({ error: 'Wishlist not found for the specified user' });
+      });
+  
+      if (!wishlist) {
+        return res.status(404).json({ error: 'Wishlist not found for the specified user' });
+      }
+  
+      for (let i = wishlist.products.length - 1; i >= 0; i--) {
+        const product = wishlist.products[i].productId;
+  
+        if (product) {
+          const convertedPrice = convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency);
+  
+          wishlist.products[i].productId._doc.price.value = convertedPrice;
+          wishlist.products[i].productId._doc.price.currency = newCurrency;
+        } else {
+          wishlist.products.splice(i, 1);
         }
-
-        for (let i = wishlist.products.length - 1; i >= 0; i--) {
-            const productId = wishlist.products[i].productId;
-            const productExists = await doesProductExistById(productId);
-
-            if (!productExists) {
-                wishlist.products.splice(i, 1);
-            }
-        }
-
-        await wishlist.save();
-
-        res.status(200).json(wishlist.products);
+      }
+  
+      await wishlist.save();
+  
+      res.status(200).json(wishlist.products);
     } catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: 'Internal Server Error' });
     }
 };
+  
