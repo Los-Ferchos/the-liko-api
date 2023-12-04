@@ -25,7 +25,7 @@ export const getProductById = async (request, response) => {
     if (!product) {
       response.status(404).json({ error: 'Product not found' });
     } else if ((!product.availability && !admin) || product.deleted) {
-      return res.status(403).json({ message: 'Cannot retrieve the product. It is not available or has been deleted.' });
+      response.status(403).json({ message: 'Cannot retrieve the product. It is not available or has been deleted.' });
     } else {
       const convertedPrice = convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency);
 
@@ -41,12 +41,20 @@ export const getProductById = async (request, response) => {
           },
         }));
       } else {
-        itemsOrCombos = await Product.find({
+        const comboProducts = await Product.find({
           type: 'combo',
           items: { $in: [productId] },
           availability: true,
           deleted: false
         }).populate('items');
+
+        itemsOrCombos = comboProducts.map(item => ({
+          ...item._doc,
+          price: {
+            value: convertToCurrency(item._doc.price.value, item._doc.price.currency, newCurrency),
+            currency: newCurrency
+          },
+        }));
 
         drinkMixes = await DrinkMix.find({
           relatedProducts: { $in: [productId] },
@@ -70,7 +78,6 @@ export const getProductById = async (request, response) => {
   }
 };
 
-
 /**
  * Gets a list of products as a JSON response using pagination.
 
@@ -83,7 +90,6 @@ export const getAllProducts = async (request, response) => {
   } = request.query;
   try {
     const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
     const sortWay = getSortTypeField(sort);
     const filters = getFiltersQuery(ft1, ft2, ft3);
 

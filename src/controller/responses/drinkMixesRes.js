@@ -1,4 +1,5 @@
 import DrinkMix from "../../models/DrinkMix.js";
+import { convertToCurrency } from "../methods/changeCurrency.js";
 import { generatePagination } from "../methods/paginate.js";
 
 /**
@@ -53,27 +54,39 @@ export const getAllDrinkMixes = async (request, response) => {
  * @throws {Object} - An error object with a message property.
  */
 export const getDrinkMixById = async (request, response) => {
-    try {
-      const drinkMixId = request.params.id;
-  
-      const drinkMix = await DrinkMix.findById(drinkMixId).populate({
-        path: 'relatedProducts',
-        match: {
-          deleted: false,
-          availability: true
-        }
-      });;
-  
-      if (!drinkMix) {
-        return response.status(404).json({ message: 'Drink mix not found' });
+  try {
+    const { newCurrency = "USD" } = request.query;
+    const drinkMixId = request.params.id;
+
+    const drinkMix = await DrinkMix.findById(drinkMixId).populate({
+      path: 'relatedProducts',
+      match: {
+        deleted: false,
+        availability: true
       }
-  
-      if (!drinkMix.availability || drinkMix.deleted) {
-        return response.status(403).json({ message: 'Cannot retrieve the drink mix. It is not available or has been deleted.' });
-      }
-  
-      response.status(200).json(drinkMix);
-    } catch (error) {
-      response.status(500).json({ message: 'Internal Server Error', error: error.message });
+    });
+
+    if (!drinkMix) {
+      return response.status(404).json({ message: 'Drink mix not found' });
     }
+
+    if (!drinkMix.availability || drinkMix.deleted) {
+      return response.status(403).json({ message: 'Cannot retrieve the drink mix. It is not available or has been deleted.' });
+    }
+
+    const convertedPrices = drinkMix.relatedProducts.map(product => ({
+      ...product._doc,
+      price: {
+        value: convertToCurrency(product._doc.price.value, product._doc.price.currency, newCurrency),
+        currency: newCurrency
+      },
+    }));
+
+    response.status(200).json({
+      ...drinkMix._doc,
+      relatedProducts: convertedPrices,
+    });
+  } catch (error) {
+    response.status(500).json({ message: 'Internal Server Error', error: error.message });
+  }
 }
