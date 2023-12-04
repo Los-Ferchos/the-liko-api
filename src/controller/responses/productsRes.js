@@ -174,7 +174,7 @@ export const getAllAvailableProducts = async (request, response) => {
     const pagination = generatePagination(page, limit, totalProductsCount);
 
     response.status(200).json({
-      products: getProductsWithNewCurrency(products, newCurrency, ft1, ft2, ft3),
+      products: getProductsWithNewCurrency(products, newCurrency),
       topSellingProducts,
       pagination
     });
@@ -233,7 +233,7 @@ export const getAllProductsByCategory = async (request, response) => {
     const pagination = generatePagination(page, limit, totalProductsCount);
 
     response.status(200).json({
-      products: getProductsWithNewCurrency(products, newCurrency, ft1, ft2, ft3),
+      products: getProductsWithNewCurrency(products, newCurrency),
       topSellingProducts,
       pagination
 
@@ -288,7 +288,7 @@ export const getAllProductsByCategoryAndSubcategory = async (request, response) 
     const pagination = generatePagination(page, limit, totalProductsCount);
 
     response.status(200).json({
-      products: getProductsWithNewCurrency(products, newCurrency, ft1, ft2, ft3),
+      products: getProductsWithNewCurrency(products, newCurrency),
       topSellingProducts,
       pagination
     });
@@ -341,7 +341,7 @@ export const getAllProductsBySubcategory = async (request, response) => {
     const pagination = generatePagination(page, limit, totalProductsCount);
 
     response.status(200).json({
-      products: getProductsWithNewCurrency(products, newCurrency, ft1, ft2, ft3),
+      products: getProductsWithNewCurrency(products, newCurrency),
       topSellingProducts,
       pagination
     });
