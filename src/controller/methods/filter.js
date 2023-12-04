@@ -21,10 +21,6 @@ export const getFilterQuery = (array) => {
     var query = [];
 
     switch (key) {
-        case 1:
-            query[0] = {"price.value": {$lte: to}};
-            query[1] = {"price.value": {$gte: from}};
-            break;
         case 2: 
             query[0] = {rating: {$lte: to}}
             query[1] = {rating: {$gte: from}} 
@@ -40,6 +36,16 @@ export const getFilterQuery = (array) => {
     return query;
 };
 
+
+export const getFilterPriceWithCurrency = (products, filterString) => {
+
+    const operationsArray = filterString.split("_").map(Number);
+    const from = operationsArray[1];
+    const to = operationsArray[2];
+
+    return products.filter(item => item.price.value >= from && item.price.value <= to);
+} 
+ 
 
 /**
  * Ths method receives multiple filter queries to send a general query validating that are not empty
