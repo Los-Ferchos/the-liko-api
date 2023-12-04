@@ -1,4 +1,5 @@
 import { getExchangeRates } from "../requests/exchangeRatesReq.js";
+import { getFilterPriceWithCurrency } from "./filter.js";
 
 /**
  * Helper function to convert a given price from one currency to a new currency.
@@ -19,7 +20,7 @@ export const convertToCurrency = (priceInCurrency, currentCurrency, newCurrency)
  * @param {string} newCurrency - The target currency for conversion (e.g., 'BOB').
  * @returns {Array} - An array of products with updated currency values.
  */
-export const getProductsWithNewCurrency = (products, newCurrency) => {
+export const getProductsWithNewCurrency = (products, newCurrency, ft1, ft2, ft3) => {
     const convertProductCurrency = (product) => {
         const convertedPrice = convertToCurrency(
             product.price.value,
@@ -38,6 +39,14 @@ export const getProductsWithNewCurrency = (products, newCurrency) => {
     };
 
     const productsWithConvertedPrices = products.map(convertProductCurrency);
+
+    if (ft1.startsWith("1")) {
+        productsWithConvertedPrices = getFilterPriceWithCurrency(productsWithConvertedPrices, ft1);
+    } else if (ft2.startsWith("1")) {
+        productsWithConvertedPrices = getFilterPriceWithCurrency(productsWithConvertedPrices, ft1);
+    } else if (ft3.startsWith("1")) {
+        productsWithConvertedPrices = getFilterPriceWithCurrency(productsWithConvertedPrices, ft1);
+    }
 
     return productsWithConvertedPrices;
 };
