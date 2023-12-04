@@ -5,6 +5,10 @@ export const addNewOrder = async (req, res) => {
   try {
     const newOrderData = req.body;
     console.log(newOrderData);
+    const isAvailable = await verifyStockAvailability(newOrderData.items);
+    if (isAvailable !== null) {
+      return res.status(200).json({ message: `The product ${isAvailable} is not available in the required quantity` });
+    }
     await decrementStock(newOrderData.items);
     await incrementSells(newOrderData.items);
     console.log('Operations succesfully completed');
@@ -120,5 +124,20 @@ export const updateStatus = async (req, res) => {
     res.status(200).json(updatedOrder);
   } catch (err) {
     res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+const verifyStockAvailability = async (orderItems) => {
+  try {
+    for (const item of orderItems) {
+      const productId = item.productId;
+      const product = await Product.findById(productId);
+      if (product.quantity < item.quantity) {
+        return product.name;
+      }
+    }
+    return null;
+  } catch (err) {
+    console.log(err);
   }
 }
