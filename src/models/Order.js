@@ -31,6 +31,22 @@ const orderSchema = new Schema({
             quantity: {
                 type: Number,
                 required: true
+            },
+            price: {
+                value: {
+                  type: Number,
+                  required: true,
+                  validate: {
+                    validator: function (value) {
+                      return value >= 0;
+                    },
+                    message: props => `${props.value} is not a valid positive number for price.`,
+                  },
+                },
+                currency: {
+                  type: String,
+                  required: true
+                }
             }
         }
     ],
