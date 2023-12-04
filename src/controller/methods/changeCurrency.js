@@ -38,14 +38,14 @@ export const getProductsWithNewCurrency = (products, newCurrency, ft1, ft2, ft3)
         };
     };
 
-    const productsWithConvertedPrices = products.map(convertProductCurrency);
+    var productsWithConvertedPrices = products.map(convertProductCurrency);
 
     if (ft1.startsWith("1")) {
         productsWithConvertedPrices = getFilterPriceWithCurrency(productsWithConvertedPrices, ft1);
     } else if (ft2.startsWith("1")) {
-        productsWithConvertedPrices = getFilterPriceWithCurrency(productsWithConvertedPrices, ft1);
+        productsWithConvertedPrices = getFilterPriceWithCurrency(productsWithConvertedPrices, ft2);
     } else if (ft3.startsWith("1")) {
-        productsWithConvertedPrices = getFilterPriceWithCurrency(productsWithConvertedPrices, ft1);
+        productsWithConvertedPrices = getFilterPriceWithCurrency(productsWithConvertedPrices, ft3);
     }
 
     return productsWithConvertedPrices;
