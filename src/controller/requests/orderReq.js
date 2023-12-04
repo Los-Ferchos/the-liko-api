@@ -1,14 +1,6 @@
 import Order from "../../models/Order.js"
 import Product from "../../models/Product.js"
 
-/**
- * Adds a new order to the system.
- * 
- * @param {Object} req - The request object.
- * @param {Object} res - The response object.
- * @returns {Promise<void>} - A promise that resolves when the order is added successfully.
- * @throws {Error} - If there is an internal server error.
- */
 export const addNewOrder = async (req, res) => {
   try {
     const newOrderData = req.body;
