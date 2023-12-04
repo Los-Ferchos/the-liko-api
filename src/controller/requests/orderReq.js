@@ -1,6 +1,14 @@
 import Order from "../../models/Order.js"
 import Product from "../../models/Product.js"
 
+/**
+ * Adds a new order to the system.
+ * 
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the order is added successfully.
+ * @throws {Error} - If there is an internal server error.
+ */
 export const addNewOrder = async (req, res) => {
   try {
     const newOrderData = req.body;
@@ -74,6 +82,12 @@ const incrementSells = async (orderItems) => {
 }
 
 
+/**
+ * Edit an order.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the updated order or an error response.
+ */
 export const editOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -88,6 +102,12 @@ export const editOrder = async (req, res) => {
   }
 }
 
+/**
+ * Deletes an order by its ID.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves when the order is deleted.
+ */
 export const deleteOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -100,6 +120,12 @@ export const deleteOrder = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 }
+/**
+ * Retrieves the items of an order.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the order items or an error response.
+ */
 export const getOrderItems = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -113,6 +139,12 @@ export const getOrderItems = async (req, res) => {
   }
 }
 
+/**
+ * Updates the status of an order.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - A promise that resolves with the updated order or an error response.
+ */
 export const updateStatus = async (req, res) => {
   try {
     const orderId = req.params.id;
@@ -127,6 +159,11 @@ export const updateStatus = async (req, res) => {
   }
 }
 
+/**
+ * Verifies the availability of stock for the given order items.
+ * @param {Array} orderItems - The array of order items to be checked.
+ * @returns {string|null} - The name of the product that is out of stock, or null if all products are available.
+ */
 const verifyStockAvailability = async (orderItems) => {
   try {
     for (const item of orderItems) {
