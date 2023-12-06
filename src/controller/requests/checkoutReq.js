@@ -1,6 +1,6 @@
 import stripe from 'stripe';
 
-const stripeSecretKey = 'sk_test_51OCBE7IJLm2DQzDdB4eAcQFC5DH2ffavB9meM8OSl44THDK68bHr8qz0xXKeOEOmBtcrmLOrtHFq1mXuppsLFUZp00G99phDsw';
+const stripeSecretKey = process.env.STRIPE_KEY;
 const stripeClient = new stripe(stripeSecretKey);
 
 /**
@@ -20,8 +20,7 @@ export const getCodeCheckout = async (req, res) => {
     });
     res.json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
-    console.error('Error al generar el código de pago:', error);
-    res.status(500).send('Error interno del servidor');
+    res.status(500).send('Internal server error');
   }
 };
 

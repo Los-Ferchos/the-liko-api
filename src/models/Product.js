@@ -8,25 +8,54 @@ const productSchema = new Schema({
       type: String,
       required: true
     },
+    type: {
+      type: String,
+      enum: ['product', 'combo'],
+      default: 'product'
+    }, 
     description: {
       type: String,
       required: true
     },
     rating: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value >= 0;
+        },
+        message: props => `${props.value} is not a valid positive number for price.`,
+      },
     },
     totalReviews: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value >= 0;
+        },
+        message: props => `${props.value} is not a valid positive number for price.`,
+      },
     },
     sells: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: function (value) {
+          return value >= 0;
+        },
+        message: props => `${props.value} is not a valid positive number for price.`,
+      },
     },
     quantity: {
       type: Number,
-      required: true
+      default: 1,
+      validate: {
+        validator: function (value) {
+          return value >= 0;
+        },
+        message: props => `${props.value} is not a valid positive number for price.`,
+      },
     },
     imgUrl: {
       type: String,
@@ -43,7 +72,13 @@ const productSchema = new Schema({
     price: {
       value: {
         type: Number,
-        required: true
+        required: true,
+        validate: {
+          validator: function (value) {
+            return value >= 0;
+          },
+          message: props => `${props.value} is not a valid positive number for price.`,
+        },
       },
       currency: {
         type: String,
@@ -52,23 +87,20 @@ const productSchema = new Schema({
     },
     details: {
       type: Object,
-      required: true
     },
-    drinkMixes: [
+    items: [
       {
         type: Schema.Types.ObjectId,
-        ref: 'DrinkMix'
-      }
-    ],
-    combos: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'Combo'
+        ref: 'Product'
       }
     ],
     availability: {
       type: Boolean,
       default: true
+    },
+    deleted: {
+      type: Boolean,
+      default: false
     }
 });
   

@@ -2,7 +2,7 @@ import Product from '../../models/Product.js';
 import User from '../../models/User.js';
 
 /**
- * Validate cart item data.
+ * Validates cart item data, checking user existence, product existence, quantity availability, and quantity validity.
  *
  * @param {string} userId - The user ID associated with the cart item.
  * @param {string} productId - The product ID associated with the cart item.
@@ -12,26 +12,42 @@ import User from '../../models/User.js';
 export const validateCartItemData = async (userId, productId, quantity) => {
     const errors = [];
     const userExists = await doesUserExistById(userId);
+  
     if (!userExists) {
-        errors.push({ field: 'userId', error: 'User not found' });
+      errors.push({ field: 'userId', error: 'User not found' });
     }
-
+  
     const productInfo = await checkProductExistsAndGetQuantity(productId);
+  
     if (!productInfo.exists) {
-        errors.push({ field: 'productId', error: 'Product not found' });
-    } else if (quantity > productInfo.quantity) {
-        errors.push({
-            field: 'quantity',
-            error: `Product stock: ${productInfo.quantity} is not enough for the requested quantity: ${quantity}`,
-            productQuantity: productInfo.quantity,
+      errors.push({ field: 'productId', error: 'Product not found' });
+    } else {
+      if (productInfo.exists && productInfo.type === 'combo') {
+        const comboItems = await Product.find({
+          _id: { $in: productInfo.product.items },
         });
+  
+        const minQuantity = Math.min(...comboItems.map(item => item.quantity || 1));
+  
+        if (quantity > minQuantity) {
+          errors.push({
+            field: 'quantity',
+            error: `Product stock: ${minQuantity} is not enough for the requested quantity: ${quantity}`,
+            productQuantity: minQuantity,
+          });
+        }
+      } else if (quantity > productInfo.quantity) {
+        errors.push({
+          field: 'quantity',
+          error: `Product stock: ${productInfo.quantity} is not enough for the requested quantity: ${quantity}`,
+          productQuantity: productInfo.quantity,
+        });
+      }
     }
-    
+  
     if (!Number.isInteger(quantity) || quantity < 1) {
-        errors.push({ field: 'quantity', error: 'Quantity should be higher than 0' });
+      errors.push({ field: 'quantity', error: 'Quantity should be higher than 0' });
     }
-
-
 
     return { errors, productInfo };
 };
@@ -55,6 +71,22 @@ export const doesUserExistById = async (userId) => {
 };
 
 /**
+ * Checks the existence of a product by its ID.
+ *
+ * @param {string} productId - The ID of the product.
+ * @returns {Promise<boolean>} A promise that resolves to true if the product exists, false otherwise.
+ */
+export const doesProductExistById = async (productId) => {
+    try {
+        const product = await Product.findById(productId);
+        return !!product;
+    } catch (error) {
+        return false;
+    }
+};
+
+
+/**
  * Check if a product exists and get its quantity.
  *
  * @function
@@ -75,3 +107,18 @@ export const checkProductExistsAndGetQuantity = async (productId) => {
         return { exists: false, quantity: 0 };
     }
 };
+
+/**
+ * Validates if a user exists in the database.
+ * @param {string} userId - The ID of the user to validate.
+ * @returns {Promise<boolean>} - A promise that resolves to a boolean indicating if the user exists or not.
+ */
+export const validateUserExist = async (userId) => {
+    try {
+      const user = await User.findById(userId);
+      return !!user;
+    } catch (error) {
+      return false;
+    }
+  }
+  

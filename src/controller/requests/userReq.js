@@ -82,7 +82,7 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * - [A-Za-z\d+,\.\-_'"!¿?]{6,80}: Allowed characters include letters (upper and lower case),
  *   digits, and the specified special characters. Length must be between 6 and 80 characters.
  */
-const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[+,\.\-_'"!¿?])[A-Za-z\d+,\.\-_'"!¿?]{6,80}$/;
+const passwordPattern = /^(?=.*[a-zñ])(?=.*[A-ZÑ])(?=.*\d)(?=.*[+,\.\-_'"!¿?])[A-Za-zñÑ\d+,\.\-_'"!¿?]{6,80}$/;
 
 /**
  * Regular expression pattern to validate names.
@@ -90,7 +90,8 @@ const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[+,\.\-_'"!¿?])[A-
  * - [A-Za-z\s]{3,80}: Allowed characters include letters (upper and lower case) and spaces.
  *   Length must be between 3 and 80 characters.
  */
-const namePattern = /^(?! {0,2}$)[A-Za-z\s]{3,80}$/;
+const namePattern = /^(?! {0,2}$)[A-Za-zñÑ\s]{3,80}$/;
+
 
 
 /**
@@ -285,5 +286,20 @@ const registerUser = async (username, email,password) => {
     return savedUser;
   } catch (err) {
     return err;
+  }
+}
+
+export const getUserByToken = async (req, res) => {
+  const { token } = req.params;
+  try {
+    const user = await User.findOne({ _id: token }).exec();
+    if (user) {
+      res.status(200).json({ user });
+    } else {
+      res.status(200).json({ message: "Invalid token" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: "Bad request" });
   }
 }
